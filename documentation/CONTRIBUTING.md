@@ -1,6 +1,6 @@
-# Contributing to SCR Extraction Tool
+# Contributing to Omniflo Platform
 
-Thank you for your interest in contributing to the SCR Extraction Tool! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to the Omniflo Platform! This document provides guidelines and instructions for contributing to the project.
 
 ## Table of Contents
 
@@ -22,7 +22,7 @@ This project adheres to a Code of Conduct that sets expectations for participati
 
 ## How Can I Contribute?
 
-There are many ways you can contribute to the SCR Extraction Tool:
+There are many ways you can contribute to the Omniflo Platform:
 
 1. **Report Bugs**: If you find a bug, please create an issue using the bug report template.
 2. **Suggest Enhancements**: Have an idea for a new feature? Submit a feature request.
@@ -36,8 +36,8 @@ To set up your development environment:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/scr-extraction-tool.git
-   cd scr-extraction-tool
+   git clone https://github.com/omniflo/platform-template.git
+   cd platform-template
    ```
 
 2. **Install dependencies**:
@@ -139,8 +139,8 @@ Please ensure your code includes appropriate tests:
 
 ## Security Vulnerabilities
 
-If you discover a security vulnerability, please do NOT open an issue. Email security@yourdomain.com instead with details about the vulnerability.
+If you discover a security vulnerability, please do NOT open an issue. Email security@omniflo.health instead with details about the vulnerability.
 
 ## License
 
-By contributing to the SCR Extraction Tool, you agree that your contributions will be licensed under the project's [MIT License](LICENSE). 
+By contributing to the Omniflo Platform, you agree that your contributions will be licensed under the project's license. 
