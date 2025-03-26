@@ -1,31 +1,31 @@
-# SCR Extraction Tool Documentation
+# Omniflo Platform Documentation
 
-Welcome to the SCR Extraction Tool documentation. This comprehensive guide provides everything you need to install, configure, use, and maintain the SCR Extraction Tool.
+Welcome to the Omniflo Platform documentation. This comprehensive guide provides everything you need to install, configure, use, and maintain the Omniflo Platform.
 
 ## Documentation Overview
 
 ### For Users
 
-- [**User Guide**](user-guide.md): Detailed instructions on how to use the application, including uploading SCRs, managing templates, and extracting structured data.
+- [**User Guide**](user-guide.md): Detailed instructions on how to use the platform, including workflows, features, and best practices.
 
 ### For Administrators & DevOps
 
-- [**Installation Guide**](installation-guide.md): Step-by-step instructions for installing and deploying the application in various environments.
+- [**Installation Guide**](installation-guide.md): Step-by-step instructions for installing and deploying the platform in various environments.
 - [**Security Documentation**](security-guide.md): Comprehensive information about security features, authentication, data protection, and compliance requirements.
 
 ### For Developers
 
-- [**Technical Guide**](technical-guide.md): In-depth technical information about the architecture, integration with OpenAI, and implementation details.
+- [**Technical Guide**](technical-guide.md): In-depth technical information about the architecture, integrations, and implementation details.
 - [**Database Documentation**](database-guide.md): Detailed schema information, relationships, database operations, and maintenance guides.
 - [**Frontend Documentation**](frontend-guide.md): Information about the frontend architecture, components, state management, and accessibility implementation.
 - [**API Reference**](api-reference.md): Complete API documentation with endpoints, request/response formats, error handling, and usage examples.
 
 ## Project Structure
 
-The SCR Extraction Tool is built with a modern tech stack:
+The Omniflo Platform is built with a modern tech stack:
 
 ```
-scr-extraction-tool/
+omniflo-platform/
 ├── src/                    # Application source code
 │   ├── app/                # Next.js app router structure
 │   │   ├── (app)/         # Authenticated routes
@@ -38,7 +38,7 @@ scr-extraction-tool/
 │   ├── hooks/             # Custom React hooks
 │   ├── lib/               # Utility functions
 │   │   ├── api-client.ts  # API client
-│   │   ├── openai.ts      # OpenAI integration
+│   │   ├── integrations/  # Third-party integrations
 │   │   └── db/            # Database operations
 │   └── types/             # TypeScript types
 ├── prisma/                # Prisma schema and migrations
@@ -49,20 +49,21 @@ scr-extraction-tool/
 └── tests/                # Application tests
 ```
 
-## About SCR Extraction Tool
+## About Omniflo Platform
 
-The SCR Extraction Tool is a specialized application designed to extract structured data from Summary Care Record (SCR) PDF documents and convert it into standardized CSV format for clinical systems. It leverages OpenAI's Assistants API for powerful document understanding and data extraction capabilities.
+The Omniflo Platform is a powerful, flexible application framework designed for healthcare applications. It provides a robust foundation for building secure, scalable, and user-friendly web applications with modern technology.
 
 ### Key Features
 
-- **Intelligent Data Extraction**: Extracts structured patient data from SCR PDF documents using AI
-- **Customizable CSV Generation**: Converts extracted data into configurable CSV formats
-- **Template Management**: Customizable templates for both extraction and CSV generation processes
-- **Model Selection**: Support for multiple OpenAI models with configurable parameters
-- **User Management**: Secure multi-user support with Clerk authentication
-- **Role-Based Access**: Granular control over user permissions and template access
-- **File Security**: Temporary file storage with automatic cleanup
-- **Responsive UI**: Modern interface that works across desktop and mobile devices
+- **Modern UI**: Sleek, responsive interface built with Next.js and Tailwind CSS
+- **Authentication**: Secure user management with Clerk authentication
+- **Database Integration**: Type-safe database operations with Prisma ORM
+- **API Framework**: Well-structured API with standardized responses
+- **AI Capabilities**: Integration with OpenAI and other AI services
+- **Template System**: Customizable templates for various content and workflows
+- **Role-Based Access**: Granular control over user permissions
+- **Secure By Design**: Built-in security best practices
+- **Responsive Design**: Works seamlessly across desktop and mobile devices
 - **Accessibility**: WCAG-compliant interface with keyboard navigation and screen reader support
 
 ## Technical Stack
@@ -71,7 +72,7 @@ The SCR Extraction Tool is a specialized application designed to extract structu
 - **Backend**: Next.js API Routes, TypeScript
 - **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: Clerk
-- **AI Integration**: OpenAI Assistants API
+- **AI Integration**: OpenAI API
 - **Deployment**: Vercel (recommended) or Docker
 
 ## Getting Started
@@ -81,23 +82,23 @@ To get started quickly, follow these steps:
 1. Ensure you have the prerequisites:
    - Node.js 18 or higher
    - PostgreSQL 14 or higher
-   - OpenAI API key with Assistants API access
-   - Clerk account for authentication
+   - Clerk account for authentication (optional)
+   - OpenAI API key (optional)
 
 2. Clone the repository and install dependencies:
    ```bash
-   git clone https://github.com/your-org/scr-extraction-tool.git
-   cd scr-extraction-tool
+   git clone https://github.com/omniflo/platform-template.git
+   cd platform-template
    npm install
    ```
 
-3. Set up your environment variables:
+3. Set up environment variables:
    ```
    # .env.local
-   DATABASE_URL="postgresql://user:password@localhost:5432/scr_extraction"
-   OPENAI_API_KEY="your-openai-api-key"
-   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your-clerk-publishable-key"
-   CLERK_SECRET_KEY="your-clerk-secret-key"
+   DATABASE_URL="postgresql://user:password@localhost:5432/omniflo_platform"
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your-clerk-publishable-key" # Optional
+   CLERK_SECRET_KEY="your-clerk-secret-key" # Optional
+   OPENAI_API_KEY="your-openai-api-key" # Optional
    ```
 
 4. Initialize the database:
@@ -119,7 +120,7 @@ For issues, feature requests, or contributions, please:
 
 1. Check the documentation for answers to common questions
 2. Submit detailed bug reports with steps to reproduce
-3. Follow the contribution guidelines when submitting code
+3. Follow the [contribution guidelines](CONTRIBUTING.md) when submitting code
 
 ## License
 
