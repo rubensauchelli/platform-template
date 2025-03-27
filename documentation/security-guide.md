@@ -1,6 +1,6 @@
 # Security & Authentication
 
-This document outlines the security measures implemented in the SCR Extraction Tool to protect user data, ensure secure authentication, and maintain application integrity.
+This document outlines the security measures implemented in the Omniflo Platform to protect user data, ensure secure authentication, and maintain application integrity.
 
 ## Authentication
 
@@ -120,12 +120,12 @@ The application includes the following security headers for all responses, confi
 
 ```typescript
 // File type validation example from src/app/api/upload/route.ts
-if (!file.type.includes('pdf')) {
+if (!isValidFileType(file.type, allowedFileTypes)) {
   return NextResponse.json({
     success: false,
     data: null,
     error: {
-      message: 'Only PDF files are allowed',
+      message: 'Invalid file format',
       code: ErrorCode.UPLOAD_FAILED
     }
   }, { status: HTTP_STATUS.INVALID_FILE });
@@ -137,8 +137,8 @@ if (!file.type.includes('pdf')) {
 Rate limiting is implemented to prevent abuse and ensure fair resource allocation:
 
 - **User Limits**: 100 requests per hour per user
-- **OpenAI Quota**: 200K tokens per day monitored and enforced
-- **Concurrent Processing**: Maximum of 5 concurrent file processing jobs
+- **AI Quota**: Configurable token limits monitored and enforced (when using AI features)
+- **Concurrent Processing**: Maximum of 5 concurrent processing jobs
 - **Error Handling**: Exponential backoff for failed requests
 - **Monitoring**: Real-time usage tracking and alerts
 
@@ -173,10 +173,10 @@ Standard error codes:
 
 ### File Security
 
-- **Maximum Size**: 20MB limit for uploaded PDF files
-- **Format Validation**: Only PDF files are accepted (enforced via MIME type checking)
-- **Storage**: Files are temporarily stored in OpenAI's encrypted storage
-- **Retention**: Files are automatically deleted after processing (max 24h)
+- **Maximum Size**: 20MB limit for uploaded files
+- **Format Validation**: Configurable file type validation (enforced via MIME type checking)
+- **Storage**: Files are stored securely with appropriate access controls
+- **Retention**: Configurable retention policies with automatic cleanup
 - **Transfer**: All file transfers use encrypted connections (TLS)
 
 ### Personal Information
@@ -252,7 +252,7 @@ export async function POST(req: Request): Promise<Response> {
 }
 ```
 
-## OpenAI Integration Security
+## Third-Party Integration Security
 
 ### API Key Management
 
@@ -260,26 +260,27 @@ export async function POST(req: Request): Promise<Response> {
 - **Key Rotation**: Regular key rotation policy (90-day rotation schedule)
 - **Access Scoping**: Keys have minimal necessary permissions
 
-Secure initialization of the OpenAI client:
+Secure initialization example for third-party services:
 
 ```typescript
-// src/lib/openai.ts
-import { OpenAI } from 'openai';
+// src/lib/integrations/service-client.ts
+import { ServiceClient } from 'service-sdk';
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('Missing OPENAI_API_KEY environment variable');
+if (!process.env.SERVICE_API_KEY) {
+  throw new Error('Missing SERVICE_API_KEY environment variable');
 }
 
-export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+export const serviceClient = new ServiceClient({
+  apiKey: process.env.SERVICE_API_KEY,
+  // Additional configuration options
 });
 ```
 
-### Assistant Access Control
+### Integration Access Control
 
-- **Assistant Isolation**: Templates have isolated assistant instances
-- **Thread Cleanup**: Automatic cleanup of threads to prevent data leakage
-- **Response Validation**: All AI responses are validated for format and content
+- **Service Isolation**: Integration points have appropriate isolation and scoping
+- **Data Cleanup**: Automatic cleanup of temporary data to prevent data leakage
+- **Response Validation**: All third-party responses are validated for format and content
 
 ## Deployment Security
 
@@ -362,13 +363,13 @@ console.error('❌ Operation failed', {
   - Right to access, correction, and deletion
   - Lawful basis for processing
   
-- **HIPAA Considerations**: For healthcare information (where applicable)
+- **Industry-Specific Regulations**: Configurable for industry needs (where applicable)
   - Limited data sets
   - Secure transmission
   - Access controls
   
 - **Data Retention**: Clear policies for data storage and deletion
-  - Files deleted after processing
+  - Files deleted according to retention policies
   - User data retained only as long as necessary
   
 - **User Rights**: Support for data access and deletion requests
