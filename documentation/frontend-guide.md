@@ -1,6 +1,6 @@
 # Frontend Documentation
 
-This document provides a detailed overview of the SCR Extraction Tool's frontend architecture, user interface components, and workflow implementation.
+This document provides a detailed overview of the Omniflo Platform's frontend architecture, user interface components, and workflow implementation.
 
 ## Technology Stack
 
@@ -35,7 +35,7 @@ src/
 ├── lib/                      # Utility functions and services
 │   ├── api-client.ts         # Typed API client
 │   ├── utils.ts              # Shared utilities
-│   └── openai.ts             # OpenAI integration
+│   └── integrations/         # Third-party integrations
 └── types/                    # TypeScript type definitions
 ```
 
@@ -74,23 +74,23 @@ Each UI component:
 
 ## Core Pages
 
-### SCR Extraction Page
+### Data Processing Page
 
-The primary workflow page that enables users to upload and process SCR PDFs.
+The primary workflow page that enables users to upload and process files.
 
-**Location**: `src/app/(app)/scr-extraction/page.tsx`
+**Location**: `src/app/(app)/processing/page.tsx`
 
 **Key Features**:
-- PDF file upload and preview with drag-and-drop support
-- Template selection for extraction and CSV generation
+- File upload and preview with drag-and-drop support
+- Template selection for processing and export
 - Process tracking with step indicators
-- Results display with JSON and CSV outputs
+- Results display with structured data outputs
 - Download options for processed data
 - Error handling with user-friendly messages
 
 **Component Structure**:
 ```
-SCR Extraction Page
+Data Processing Page
 ├── Header with breadcrumb
 ├── Card container
 │   ├── Template Selection component
@@ -98,14 +98,14 @@ SCR Extraction Page
 │   ├── Processing Pipeline (when active)
 │   ├── Error display (if applicable)
 │   └── Result display (when complete)
-│       ├── JSON data preview
-│       ├── CSV preview
+│       ├── Data preview
+│       ├── Export preview
 │       └── Download buttons
 ```
 
 ### Templates Management Page
 
-Allows users to create, edit, and manage extraction and CSV generation templates.
+Allows users to create, edit, and manage different types of templates.
 
 **Location**: `src/app/(app)/templates/page.tsx`
 
@@ -114,13 +114,13 @@ Allows users to create, edit, and manage extraction and CSV generation templates
 - Template creation and editing
 - Default template selection
 - Template deletion with confirmation
-- OpenAI model synchronization
+- AI model synchronization
 
 **Component Structure**:
 ```
 Templates Page
 ├── Header with breadcrumb
-├── Tab selection (Extraction/CSV)
+├── Tab selection (Processing/Export)
 ├── Model Sync component
 └── Template grid
     └── Template Card components
@@ -139,16 +139,17 @@ Handles file uploads, previews, and management.
 **Props**:
 - `onFileSelect`: Callback when file is selected
 - `selectedFile`: Currently selected file
-- `pdfUrl`: Optional URL for existing file
+- `fileUrl`: Optional URL for existing file
 - `disabled`: Whether the component is disabled
 - `isProcessing`: Whether a file is currently being processed
+- `acceptedFileTypes`: File types that can be uploaded
 
 **Key Implementation Details**:
 - Uses react-dropzone for drag and drop functionality
-- Validates file types to accept only PDFs
+- Validates file types based on accepted file types
 - Creates object URLs for file previews
 - Implements cleanup to prevent memory leaks
-- Opens PDF files in a new window for preview
+- Opens files in appropriate viewers
 - Provides visual feedback for drag states and validation
 
 **Usage Example**:
@@ -156,8 +157,9 @@ Handles file uploads, previews, and management.
 <FileDropBox
   selectedFile={file}
   onFileSelect={handleFileSelect}
-  disabled={!selectedTemplates.extraction || !selectedTemplates.csv}
+  disabled={!selectedTemplates.processing || !selectedTemplates.export}
   isProcessing={isProcessing}
+  acceptedFileTypes={{ 'application/pdf': ['.pdf'] }}
 />
 ```
 
@@ -165,7 +167,7 @@ Handles file uploads, previews, and management.
 
 #### TemplateSelection
 
-Enables users to select templates for different assistant types.
+Enables users to select templates for different template types.
 
 **Location**: `src/components/template-selection.tsx`
 
@@ -408,7 +410,7 @@ protected async fetch<T>(url: string, init?: RequestInit): Promise<T> {
 3. **Conditional Rendering**: For showing error UI
 4. **Form Validation**: For preventing invalid submissions
 
-**Example from SCR Extraction Page**:
+**Example from Data Processing Page**:
 ```tsx
 try {
   const result = await processFile(file);
@@ -468,7 +470,7 @@ The application prioritizes accessibility with the following features:
   <DialogHeader>
     <DialogTitle>Select Template</DialogTitle>
     <DialogDescription>
-      Choose a template for data extraction
+      Choose a template for data processing
     </DialogDescription>
   </DialogHeader>
   {/* Dialog content */}
@@ -492,38 +494,37 @@ The application prioritizes accessibility with the following features:
 
 ## Workflows
 
-### PDF Processing Workflow
+### File Processing Workflow
 
 1. **Template Selection**:
-   - User selects extraction and CSV generation templates
+   - User selects processing and export templates
    - Both template types are required to proceed
 
 2. **File Upload**:
-   - User uploads a PDF file (maximum 20MB)
+   - User uploads a file (maximum 20MB)
    - File preview is available
-   - Validation ensures only PDF files are accepted
+   - Validation ensures only accepted file types are accepted
 
 3. **Processing**:
-   - User initiates processing with "Extract Data" button
+   - User initiates processing with "Process File" button
    - Processing pipeline displays current status:
-     1. Uploading PDF File to OpenAI
-     2. Extracting Patient Data from PDF
-     3. Cleaning Up Original File
-     4. Generating CSV from extracted data
+     1. Uploading File to AI
+     2. Processing File with Selected Template
+     3. Exporting Processed Data
 
 4. **Results**:
-   - Extracted data displayed in JSON format
-   - Generated CSV available for preview
-   - Download options for both formats
+   - Processed data displayed in structured format
+   - Export options available for different formats
+   - Download options for processed data
    - Option to process a new file
 
 ### Template Management Workflow
 
 1. **Template Creation**:
-   - User selects template type (Extraction or CSV)
+   - User selects template type (Processing or Export)
    - Fills template form with:
      - Title and description
-     - Model selection from available OpenAI models
+     - Model selection from available AI models
      - System instructions for AI behavior
      - Temperature setting (0.0-2.0)
      - Default template option
@@ -541,7 +542,7 @@ The application prioritizes accessibility with the following features:
 4. **Template Deletion**:
    - Confirm deletion via dialog
    - Cannot delete a template currently in use
-   - Associated OpenAI assistant is also deleted
+   - Associated AI model is also deleted
 
 ## Responsive Design
 
