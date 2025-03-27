@@ -1,6 +1,6 @@
-# SCR Extraction Tool: Installation & Setup Guide
+# Omniflo Platform: Installation & Setup Guide
 
-This guide provides detailed instructions for installing, configuring, and deploying the SCR Extraction Tool in various environments.
+This guide provides detailed instructions for installing, configuring, and deploying the Omniflo Platform in various environments.
 
 ## Local Development Setup
 
@@ -13,15 +13,15 @@ Make sure you have the following installed on your system:
 - **PostgreSQL**: v14.0 or higher
 - **Git**: For version control
 
-You'll also need accounts and API keys for:
-- **OpenAI**: With access to Assistants API
+You'll also need accounts and API keys for (optional, depending on features you want to use):
+- **OpenAI**: For AI integration features
 - **Clerk**: For authentication
 
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/your-organization/scr-extraction-tool.git
-cd scr-extraction-tool
+git clone https://github.com/omniflo/platform-template.git
+cd platform-template
 ```
 
 ### Step 2: Install Dependencies
@@ -35,15 +35,15 @@ npm install
 Create a `.env.local` file in the root directory and add the following variables:
 
 ```
-# Authentication
+# Authentication (optional)
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 
-# OpenAI
+# OpenAI (optional)
 OPENAI_API_KEY=sk-...
 
 # Database
-DATABASE_URL="postgresql://username:password@localhost:5432/scr_extraction"
+DATABASE_URL="postgresql://username:password@localhost:5432/omniflo_platform"
 
 # Application
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -111,7 +111,7 @@ The application should now be running at `http://localhost:3000`.
 #### Step 1: Build the Docker Image
 
 ```bash
-docker build -t scr-extraction-tool .
+docker build -t omniflo-platform .
 ```
 
 #### Step 2: Create a docker-compose.yml File
@@ -120,7 +120,7 @@ docker build -t scr-extraction-tool .
 version: '3'
 services:
   app:
-    image: scr-extraction-tool
+    image: omniflo-platform
     ports:
       - "3000:3000"
     environment:
@@ -128,7 +128,7 @@ services:
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
       - CLERK_SECRET_KEY=sk_test_...
       - OPENAI_API_KEY=sk-...
-      - DATABASE_URL=postgresql://username:password@db:5432/scr_extraction
+      - DATABASE_URL=postgresql://username:password@db:5432/omniflo_platform
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
     depends_on:
       - db
@@ -139,7 +139,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=your_password
       - POSTGRES_USER=username
-      - POSTGRES_DB=scr_extraction
+      - POSTGRES_DB=omniflo_platform
 volumes:
   postgres_data:
 ```
@@ -165,8 +165,8 @@ The application should now be running at `http://localhost:3000`.
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-organization/scr-extraction-tool.git
-cd scr-extraction-tool
+git clone https://github.com/omniflo/platform-template.git
+cd platform-template
 
 # Install dependencies
 npm install
@@ -188,7 +188,7 @@ For a production environment, you can use PM2 to manage the Node.js process:
 npm install -g pm2
 
 # Start the application
-pm2 start npm --name "scr-extraction" -- start
+pm2 start npm --name "omniflo-platform" -- start
 ```
 
 #### Step 4: Configure Nginx (Optional)
@@ -211,10 +211,10 @@ server {
 }
 ```
 
-Save this to `/etc/nginx/sites-available/scr-extraction` and enable it:
+Save this to `/etc/nginx/sites-available/omniflo-platform` and enable it:
 
 ```bash
-ln -s /etc/nginx/sites-available/scr-extraction /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/omniflo-platform /etc/nginx/sites-enabled/
 nginx -t
 systemctl reload nginx
 ```
@@ -240,35 +240,35 @@ For production environments, set up regular backups of your PostgreSQL database:
 
 ```bash
 # Example backup command
-pg_dump -U username -d scr_extraction > backup_$(date +%Y%m%d).sql
+pg_dump -U username -d omniflo_platform > backup_$(date +%Y%m%d).sql
 ```
 
 Consider automating this with a cron job:
 
 ```
-0 0 * * * pg_dump -U username -d scr_extraction > /path/to/backups/backup_$(date +%Y%m%d).sql
+0 0 * * * pg_dump -U username -d omniflo_platform > /path/to/backups/backup_$(date +%Y%m%d).sql
 ```
 
-## OpenAI Setup
+## OpenAI Setup (Optional)
 
-### Creating Assistants
+### Setting Up AI Integration
 
-The SCR Extraction Tool requires two specialized OpenAI assistants:
+If you're using the AI integration features of the Omniflo Platform, you'll need to configure OpenAI:
 
-1. **SCR Data Extraction Assistant**
-   - Create in OpenAI dashboard
-   - Use GPT-4 model
-   - Enable file capability
-   - Add document understanding instructions
+1. **Create an OpenAI Account**
+   - Sign up at [platform.openai.com](https://platform.openai.com)
+   - Set up billing for API access
 
-2. **CSV Generation Assistant**
-   - Create in OpenAI dashboard
-   - Use GPT-4 model
-   - Add CSV formatting instructions
+2. **Generate an API Key**
+   - Go to API Keys section in your OpenAI dashboard
+   - Create a new API key and copy it
+   - Add the key to your environment variables as `OPENAI_API_KEY`
 
-After creating these assistants, update the application configuration with their IDs.
+3. **Configure AI Models**
+   - The application allows use of various models (gpt-4o, gpt-3.5-turbo, etc.)
+   - Models can be selected based on the performance and cost requirements
 
-## Clerk Authentication Setup
+## Clerk Authentication Setup (Optional)
 
 ### Creating a Clerk Application
 
@@ -322,7 +322,7 @@ If you encounter OpenAI API errors:
 
 1. Verify your API key is valid and has sufficient permissions
 2. Check if you have billing set up on your OpenAI account
-3. Ensure you have access to the Assistants API
+3. Ensure you have access to the required models
 
 #### Next.js Build Errors
 
