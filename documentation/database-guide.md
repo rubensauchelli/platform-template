@@ -1,6 +1,6 @@
 # Database Schema Documentation
 
-The SCR Extraction Tool uses PostgreSQL as its primary database with Prisma ORM for type-safe database operations. This document outlines the database schema, relationships between models, and their purpose within the application.
+The Omniflo Platform uses PostgreSQL as its primary database with Prisma ORM for type-safe database operations. This document outlines the database schema, relationships between models, and their purpose within the application.
 
 ## Database Technology
 
@@ -14,11 +14,11 @@ The SCR Extraction Tool uses PostgreSQL as its primary database with Prisma ORM 
 The database schema consists of several interconnected models that handle various aspects of the application:
 
 1. **User**: Represents application users authenticated via Clerk
-2. **Template**: Stores AI assistant templates for different processing types
-3. **AssistantType**: Defines the types of assistants available (e.g., SCR extraction, CSV generation)
-4. **AssistantTool**: Defines the tools available to each assistant type
+2. **Template**: Stores templates for different processing types
+3. **TemplateType**: Defines the types of templates available (e.g., data-processing, data-export)
+4. **TemplateTool**: Defines the tools available to each template type
 5. **OpenAIModel**: Available OpenAI models that can be used with templates
-6. **UserTemplateSelection**: Tracks which templates a user has selected for each assistant type
+6. **UserTemplateSelection**: Tracks which templates a user has selected for each template type
 
 ## Model Definitions
 
@@ -45,11 +45,11 @@ model User {
 
 **Relationships**:
 - One-to-Many with `Template`: A user can create multiple templates
-- One-to-Many with `UserTemplateSelection`: A user can select multiple templates for different assistant types
+- One-to-Many with `UserTemplateSelection`: A user can select multiple templates for different template types
 
 ### Template
 
-Represents an AI assistant template with specific instructions for data processing.
+Represents a template with specific instructions for data processing.
 
 ```prisma
 model Template {
@@ -58,14 +58,14 @@ model Template {
   description     String
   instructions    String
   userId          String
-  assistantTypeId String
+  templateTypeId  String
   isDefault       Boolean                 @default(false)
   modelId         String
   temperature     Float
   assistantId     String?
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
-  assistantType   AssistantType           @relation(fields: [assistantTypeId], references: [id])
+  templateType    TemplateType            @relation(fields: [templateTypeId], references: [id])
   model           OpenAIModel             @relation(fields: [modelId], references: [id])
   user            User                    @relation(fields: [userId], references: [id])
   selections      UserTemplateSelection[]
@@ -76,34 +76,34 @@ model Template {
 - `id`: Primary key, auto-generated CUID
 - `title`: Title of the template
 - `description`: Description of the template's purpose
-- `instructions`: The actual instructions provided to the AI assistant
+- `instructions`: The actual instructions provided to the AI processing
 - `userId`: Foreign key referencing the User who created the template
-- `assistantTypeId`: Foreign key referencing the AssistantType
+- `templateTypeId`: Foreign key referencing the TemplateType
 - `isDefault`: Boolean indicating if this is a default template for its type
 - `modelId`: Foreign key referencing the OpenAI model to use
 - `temperature`: The temperature setting for the AI model (0.0-2.0)
-- `assistantId`: Optional ID of the created OpenAI assistant
+- `assistantId`: Optional ID of the created OpenAI assistant (if using Assistants API)
 - `createdAt`: Timestamp when the template was created
 - `updatedAt`: Timestamp when the template was last updated
 
 **Relationships**:
 - Many-to-One with `User`: Each template belongs to a user
-- Many-to-One with `AssistantType`: Each template is for a specific assistant type
+- Many-to-One with `TemplateType`: Each template is for a specific template type
 - Many-to-One with `OpenAIModel`: Each template uses a specific OpenAI model
 - One-to-Many with `UserTemplateSelection`: A template can be selected by multiple users
 
-### AssistantType
+### TemplateType
 
-Defines the types of assistants available in the system.
+Defines the types of templates available in the system.
 
 ```prisma
-model AssistantType {
+model TemplateType {
   id          String                  @id @default(cuid())
   name        String                  @unique
   description String
   createdAt   DateTime                @default(now())
   updatedAt   DateTime                @updatedAt
-  tools       AssistantTool[]
+  tools       TemplateTool[]
   templates   Template[]
   selections  UserTemplateSelection[]
 }
@@ -111,31 +111,31 @@ model AssistantType {
 
 **Fields**:
 - `id`: Primary key, auto-generated CUID
-- `name`: Unique name of the assistant type (e.g., "scr-extraction", "csv-generation")
-- `description`: Description of the assistant type's purpose
-- `createdAt`: Timestamp when the assistant type was created
-- `updatedAt`: Timestamp when the assistant type was last updated
+- `name`: Unique name of the template type (e.g., "data-processing", "data-export")
+- `description`: Description of the template type's purpose
+- `createdAt`: Timestamp when the template type was created
+- `updatedAt`: Timestamp when the template type was last updated
 
 **Relationships**:
-- One-to-Many with `AssistantTool`: Each assistant type can have multiple tools
-- One-to-Many with `Template`: Each assistant type can have multiple templates
-- One-to-Many with `UserTemplateSelection`: Each assistant type can have multiple user selections
+- One-to-Many with `TemplateTool`: Each template type can have multiple tools
+- One-to-Many with `Template`: Each template type can have multiple templates
+- One-to-Many with `UserTemplateSelection`: Each template type can have multiple user selections
 
-### AssistantTool
+### TemplateTool
 
-Represents tools available to each assistant type.
+Represents tools available to each template type.
 
 ```prisma
-model AssistantTool {
+model TemplateTool {
   id              String         @id @default(cuid())
   name            String
   type            OpenAIToolType
   description     String
   schema          Json?
-  assistantTypeId String
+  templateTypeId  String
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
-  assistantType   AssistantType  @relation(fields: [assistantTypeId], references: [id])
+  templateType    TemplateType   @relation(fields: [templateTypeId], references: [id])
 
   @@unique([name, type])
 }
@@ -147,12 +147,12 @@ model AssistantTool {
 - `type`: Type of the tool from the OpenAIToolType enum
 - `description`: Description of the tool's purpose
 - `schema`: Optional JSON schema for function-type tools
-- `assistantTypeId`: Foreign key referencing the AssistantType
+- `templateTypeId`: Foreign key referencing the TemplateType
 - `createdAt`: Timestamp when the tool was created
 - `updatedAt`: Timestamp when the tool was last updated
 
 **Relationships**:
-- Many-to-One with `AssistantType`: Each tool belongs to an assistant type
+- Many-to-One with `TemplateType`: Each tool belongs to a template type
 
 ### OpenAIModel
 
@@ -183,21 +183,21 @@ model OpenAIModel {
 
 ### UserTemplateSelection
 
-Tracks which templates a user has selected for each assistant type.
+Tracks which templates a user has selected for each template type.
 
 ```prisma
 model UserTemplateSelection {
   id              String        @id @default(cuid())
   userId          String
   templateId      String
-  assistantTypeId String
+  templateTypeId  String
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  assistantType   AssistantType @relation(fields: [assistantTypeId], references: [id])
+  templateType    TemplateType  @relation(fields: [templateTypeId], references: [id])
   template        Template      @relation(fields: [templateId], references: [id])
   user            User          @relation(fields: [userId], references: [id])
 
-  @@unique([userId, assistantTypeId])
+  @@unique([userId, templateTypeId])
 }
 ```
 
@@ -205,23 +205,23 @@ model UserTemplateSelection {
 - `id`: Primary key, auto-generated CUID
 - `userId`: Foreign key referencing the User
 - `templateId`: Foreign key referencing the selected Template
-- `assistantTypeId`: Foreign key referencing the AssistantType
+- `templateTypeId`: Foreign key referencing the TemplateType
 - `createdAt`: Timestamp when the selection was created
 - `updatedAt`: Timestamp when the selection was last updated
 
 **Relationships**:
 - Many-to-One with `User`: Each selection belongs to a user
 - Many-to-One with `Template`: Each selection references a template
-- Many-to-One with `AssistantType`: Each selection is for a specific assistant type
+- Many-to-One with `TemplateType`: Each selection is for a specific template type
 
 **Constraints**:
-- Unique constraint on `userId` and `assistantTypeId` to ensure a user can only have one active template per assistant type
+- Unique constraint on `userId` and `templateTypeId` to ensure a user can only have one active template per template type
 
 ## Enums
 
 ### OpenAIToolType
 
-Defines the types of tools available for OpenAI assistants.
+Defines the types of tools available for OpenAI integrations.
 
 ```prisma
 enum OpenAIToolType {
@@ -266,7 +266,7 @@ export async function getInternalUserId(clerkId: string): Promise<string> {
 export async function getTemplates(): Promise<Template[]> {
   const templates = await prisma.template.findMany({
     include: {
-      assistantType: true,
+      templateType: true,
       user: true,
       model: true
     },
@@ -285,7 +285,7 @@ export async function getTemplateById(id: string, userId?: string): Promise<Temp
       id
     },
     include: {
-      assistantType: true,
+      templateType: true,
       user: true,
       model: true
     }
@@ -305,14 +305,14 @@ export async function createTemplate(data: CreateTemplateRequest, userId: string
     throw new Error(`Model ${data.model} not found`)
   }
 
-  // Get the assistant type ID and tools
-  const assistantType = await prisma.assistantType.findUnique({
-    where: { name: data.assistantType },
+  // Get the template type ID and tools
+  const templateType = await prisma.templateType.findUnique({
+    where: { name: data.templateType },
     include: { tools: true }
   })
 
-  if (!assistantType) {
-    throw new Error(`Assistant type ${data.assistantType} not found`)
+  if (!templateType) {
+    throw new Error(`Template type ${data.templateType} not found`)
   }
 
   // Create OpenAI assistant
@@ -320,15 +320,15 @@ export async function createTemplate(data: CreateTemplateRequest, userId: string
     name: data.title,
     instructions: data.instructions,
     model: data.model,
-    tools: assistantType.tools.map(convertToolToOpenAIFormat),
+    tools: templateType.tools.map(convertToolToOpenAIFormat),
     temperature: data.temperature
   });
 
-  // If setting as default, unset any existing default for this assistant type
+  // If setting as default, unset any existing default for this template type
   if (data.isDefault) {
     await prisma.template.updateMany({
       where: {
-        assistantTypeId: assistantType.id,
+        templateTypeId: templateType.id,
         isDefault: true
       },
       data: {
@@ -352,13 +352,13 @@ export async function createTemplate(data: CreateTemplateRequest, userId: string
       user: {
         connect: { id: userId }
       },
-      assistantType: {
-        connect: { id: assistantType.id }
+      templateType: {
+        connect: { id: templateType.id }
       }
     },
     include: {
       model: true,
-      assistantType: true,
+      templateType: true,
       user: true
     }
   })
@@ -372,7 +372,7 @@ export async function updateTemplate(id: string, data: Partial<CreateTemplateReq
   const currentTemplate = await prisma.template.findUnique({
     where: { id },
     include: { 
-      assistantType: {
+      templateType: {
         include: { tools: true }
       },
       model: true
@@ -383,21 +383,21 @@ export async function updateTemplate(id: string, data: Partial<CreateTemplateReq
     throw new Error(`Template ${id} not found`)
   }
 
-  let assistantTypeId: string | undefined
+  let templateTypeId: string | undefined
   let modelId: string | undefined
-  let assistantTools = currentTemplate.assistantType.tools
+  let templateTools = currentTemplate.templateType.tools
 
-  // If changing assistant type, get its ID and tools
-  if (data.assistantType) {
-    const assistantType = await prisma.assistantType.findUnique({
-      where: { name: data.assistantType },
+  // If changing template type, get its ID and tools
+  if (data.templateType) {
+    const templateType = await prisma.templateType.findUnique({
+      where: { name: data.templateType },
       include: { tools: true }
     })
-    if (!assistantType) {
-      throw new Error(`Assistant type ${data.assistantType} not found`)
+    if (!templateType) {
+      throw new Error(`Template type ${data.templateType} not found`)
     }
-    assistantTypeId = assistantType.id
-    assistantTools = assistantType.tools
+    templateTypeId = templateType.id
+    templateTools = templateType.tools
   }
 
   // If changing model, get its ID
@@ -412,21 +412,21 @@ export async function updateTemplate(id: string, data: Partial<CreateTemplateReq
   }
 
   // Update OpenAI assistant if needed
-  if (currentTemplate.assistantId && (data.title || data.instructions || data.model || data.temperature !== undefined || data.assistantType)) {
+  if (currentTemplate.assistantId && (data.title || data.instructions || data.model || data.temperature !== undefined || data.templateType)) {
     await updateAssistant(currentTemplate.assistantId, {
       name: data.title || currentTemplate.title,
       instructions: data.instructions || currentTemplate.instructions,
       model: data.model || currentTemplate.model.openAIId,
-      tools: assistantTools.map(convertToolToOpenAIFormat),
+      tools: templateTools.map(convertToolToOpenAIFormat),
       temperature: data.temperature !== undefined ? data.temperature : currentTemplate.temperature
     });
   }
 
-  // If setting as default, unset any existing default for this assistant type
+  // If setting as default, unset any existing default for this template type
   if (data.isDefault) {
     await prisma.template.updateMany({
       where: {
-        assistantTypeId: currentTemplate.assistantType.id,
+        templateTypeId: currentTemplate.templateType.id,
         isDefault: true
       },
       data: {
@@ -444,11 +444,11 @@ export async function updateTemplate(id: string, data: Partial<CreateTemplateReq
       ...(data.instructions && { instructions: data.instructions }),
       ...(data.temperature !== undefined && { temperature: data.temperature }),
       ...(data.isDefault !== undefined && { isDefault: data.isDefault }),
-      ...(assistantTypeId && { assistantTypeId }),
+      ...(templateTypeId && { templateTypeId }),
       ...(modelId && { modelId })
     },
     include: {
-      assistantType: true,
+      templateType: true,
       user: true,
       model: true
     }
@@ -482,14 +482,14 @@ export async function deleteTemplate(id: string): Promise<void> {
 // Update or create a user's template selection
 export async function updateTemplateSelection(
   userId: string, 
-  assistantTypeId: string,
+  templateTypeId: string,
   templateId: string
 ): Promise<SelectionWithRelations> {
   return prisma.userTemplateSelection.upsert({
     where: {
-      userId_assistantTypeId: {
+      userId_templateTypeId: {
         userId,
-        assistantTypeId
+        templateTypeId
       }
     },
     update: {
@@ -497,18 +497,18 @@ export async function updateTemplateSelection(
     },
     create: {
       userId,
-      assistantTypeId,
+      templateTypeId,
       templateId
     },
     include: {
       template: {
         include: {
-          assistantType: true,
+          templateType: true,
           user: true,
           model: true
         }
       },
-      assistantType: true
+      templateType: true
     }
   })
 }
@@ -572,14 +572,14 @@ export async function createTemplateAndSetAsDefault(data: CreateTemplateRequest,
   return prisma.$transaction(async (tx) => {
     // Step 1: If setting as default, unset any existing defaults
     if (data.isDefault) {
-      const assistantType = await tx.assistantType.findUnique({
-        where: { name: data.assistantType }
+      const templateType = await tx.templateType.findUnique({
+        where: { name: data.templateType }
       });
       
-      if (assistantType) {
+      if (templateType) {
         await tx.template.updateMany({
           where: {
-            assistantTypeId: assistantType.id,
+            templateTypeId: templateType.id,
             isDefault: true
           },
           data: {
@@ -616,9 +616,9 @@ The schema includes the following key indexes:
 
 1. Primary keys on all tables (`id` fields)
 2. Unique index on `User.clerkId` for quick Clerk ID lookups
-3. Unique index on `AssistantType.name` for fast type lookups
-4. Unique composite index on `[userId, assistantTypeId]` in UserTemplateSelection
-5. Unique composite index on `[name, type]` in AssistantTool
+3. Unique index on `TemplateType.name` for fast type lookups
+4. Unique composite index on `[userId, templateTypeId]` in UserTemplateSelection
+5. Unique composite index on `[name, type]` in TemplateTool
 6. Unique index on `OpenAIModel.openAIId` for efficient model lookups
 
 ## Database Maintenance
