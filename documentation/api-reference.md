@@ -1,6 +1,6 @@
 # API Documentation
 
-This document provides comprehensive information about the SCR Extraction Tool API endpoints, their request/response formats, and usage examples.
+This document provides comprehensive information about the Omniflo Platform API endpoints, their request/response formats, and usage examples.
 
 ## Base URL
 
@@ -68,11 +68,11 @@ Lists all files uploaded by the current user.
     "data": [
       {
         "id": "file_abc123",
-        "filename": "patient_record.pdf"
+        "filename": "document.pdf"
       },
       {
         "id": "file_def456",
-        "filename": "medical_history.pdf"
+        "filename": "report.pdf"
       }
     ]
   }
@@ -125,16 +125,16 @@ Deletes a specific file.
 
 ## File Upload
 
-### Upload PDF
+### Upload File
 
-Uploads a PDF file for processing.
+Uploads a file to the platform.
 
 - **URL**: `/api/upload`
 - **Method**: `POST`
 - **Authentication**: Required
 - **Content-Type**: `multipart/form-data`
 - **Body**:
-  - `file`: The PDF file to upload (max size: 20MB)
+  - `file`: The file to upload (max size: 20MB)
 
 **Response:**
 ```json
@@ -142,7 +142,7 @@ Uploads a PDF file for processing.
   "success": true,
   "data": {
     "fileId": "file_abc123",
-    "filename": "patient_record.pdf",
+    "filename": "document.pdf",
     "uploadedAt": "2023-01-01T12:00:00Z"
   }
 }
@@ -154,7 +154,7 @@ Uploads a PDF file for processing.
   "success": false,
   "data": null,
   "error": {
-    "message": "Only PDF files are allowed",
+    "message": "Invalid file format",
     "code": "UPLOAD_FAILED"
   }
 }
@@ -162,17 +162,17 @@ Uploads a PDF file for processing.
 
 **Notes:**
 - File size is limited to 20MB
-- Only PDF files are accepted
-- Files are stored temporarily in OpenAI's secure storage
-- Files are automatically deleted after processing (max 24h)
+- Supported file formats depend on the specific module
+- Files are stored securely with controlled access
+- Files may be automatically deleted after processing based on retention policy
 
-## Data Extraction
+## Data Processing
 
-### Extract Patient Data
+### Process Data
 
-Extracts structured patient data from a previously uploaded PDF.
+Processes data based on the specified template and settings.
 
-- **URL**: `/api/extract`
+- **URL**: `/api/process`
 - **Method**: `POST`
 - **Authentication**: Required
 - **Content-Type**: `application/json`
@@ -180,7 +180,10 @@ Extracts structured patient data from a previously uploaded PDF.
 ```json
 {
   "fileId": "file_abc123",
-  "templateId": "template_xyz789" // Optional, uses default SCR extraction template if not provided
+  "templateId": "template_xyz789", // Optional, uses default template if not provided
+  "options": { // Optional processing options
+    "outputFormat": "json"
+  }
 }
 ```
 
@@ -189,50 +192,13 @@ Extracts structured patient data from a previously uploaded PDF.
 {
   "success": true,
   "data": {
-    "patient": {
-      "forename": "John",
-      "surname": "Doe",
-      "dob": "1980-01-01",
-      "nhsNumber": "123 456 7890",
-      "gpPractice": "General Practice Name",
-      "registrationStatus": "Registered"
+    // Processed data (structure depends on processing type)
+    "result": {
+      "key1": "value1",
+      "key2": "value2",
+      // ...
     },
-    "allergies": [
-      {
-        "description": "Penicillin",
-        "severity": "High",
-        "date": "2015-06-12"
-      }
-    ],
-    "acuteMedications": [
-      {
-        "name": "Paracetamol",
-        "dosage": "500mg",
-        "frequency": "4 times daily",
-        "startDate": "2023-05-12"
-      }
-    ],
-    "repeatMedications": [
-      {
-        "name": "Lisinopril",
-        "dosage": "10mg",
-        "frequency": "Daily",
-        "startDate": "2022-11-03"
-      }
-    ],
-    "diagnoses": [
-      {
-        "condition": "Hypertension",
-        "diagnosedDate": "2022-10-15"
-      }
-    ],
-    "problems": [
-      {
-        "condition": "Lower back pain",
-        "severity": "Moderate",
-        "notes": "Ongoing management with physiotherapy"
-      }
-    ]
+    "processedAt": "2023-01-01T12:05:00Z"
   }
 }
 ```
@@ -243,25 +209,19 @@ Extracts structured patient data from a previously uploaded PDF.
   "success": false,
   "data": null,
   "error": {
-    "message": "fileId is required",
-    "code": "INVALID_RESPONSE"
+    "message": "Failed to process data",
+    "code": "PROCESSING_FAILED"
   }
 }
 ```
 
-**Notes:**
-- The structure of the extracted data may vary based on the template used
-- The response format is validated to ensure consistency
-- Processing may take up to 60 seconds due to the AI analysis
-- Default extraction template is used if no templateId is provided
+## Data Export
 
-## CSV Generation
+### Generate Export
 
-### Generate CSV
+Exports data in the specified format.
 
-Generates a CSV file from structured patient data.
-
-- **URL**: `/api/generate-csv`
+- **URL**: `/api/export`
 - **Method**: `POST`
 - **Authentication**: Required
 - **Content-Type**: `application/json`
@@ -269,22 +229,19 @@ Generates a CSV file from structured patient data.
 ```json
 {
   "data": {
-    "patient": {
-      "forename": "John",
-      "surname": "Doe",
-      "dob": "1980-01-01",
-      "nhsNumber": "123 456 7890"
-      // other patient data fields
+    // Structured data to be exported
+    "record": {
+      "field1": "value1",
+      "field2": "value2"
+      // other data fields
     },
-    "allergies": [
-      // allergy objects
-    ],
-    "medications": [
-      // medication objects
+    "items": [
+      // array of items
     ]
-    // other data fields
+    // other data structure
   },
-  "templateId": "template_abc123" // Optional, uses default CSV generation template if not provided
+  "format": "csv", // or "json", "excel", etc.
+  "templateId": "template_abc123" // Optional, uses default export template if not provided
 }
 ```
 
@@ -293,7 +250,8 @@ Generates a CSV file from structured patient data.
 {
   "success": true,
   "data": {
-    "csvContent": "Field,Value,Additional Information\nPatient Name,John Doe,\nDate of Birth,1980-01-01,\nNHS Number,123 456 7890,\nAllergies,Penicillin,Severe\nMedication,Paracetamol 500mg,4 times daily"
+    "content": "Field,Value,Additional Information\nfield1,value1,\nfield2,value2,\nItems,3,Total count",
+    "format": "csv"
   }
 }
 ```
@@ -311,10 +269,9 @@ Generates a CSV file from structured patient data.
 ```
 
 **Notes:**
-- CSV follows the format: `Field,Value,Additional Information`
-- CSV content is validated before being returned
-- Default CSV generation template is used if no templateId is provided
-- CSV is returned as a string, not as a file download
+- Supported export formats depend on the module configuration
+- Default export template is used if no templateId is provided
+- Content is returned as a string; for file downloads, use a separate endpoint
 
 ## Template Management
 
@@ -333,25 +290,25 @@ Lists all available templates.
   "data": [
     {
       "id": "template_abc123",
-      "title": "Standard SCR Extraction",
-      "description": "Extracts standard SCR data fields",
+      "title": "Standard Data Processing",
+      "description": "Processes data with standard fields",
       "model": "gpt-4o",
       "temperature": 0.7,
       "isDefault": true,
-      "assistantType": "scr-extraction",
-      "assistantTypeId": "at_123",
+      "type": "data-processing",
+      "typeId": "tp_123",
       "createdAt": "2023-01-01T12:00:00Z",
       "updatedAt": "2023-01-01T12:00:00Z"
     },
     {
       "id": "template_def456",
-      "title": "Custom Medications Focus",
-      "description": "Extraction focused on detailed medication data",
+      "title": "Custom Data Export",
+      "description": "Export template with advanced formatting",
       "model": "gpt-4o",
       "temperature": 0.5,
       "isDefault": false,
-      "assistantType": "scr-extraction",
-      "assistantTypeId": "at_123",
+      "type": "data-export",
+      "typeId": "tp_456",
       "createdAt": "2023-01-02T12:00:00Z",
       "updatedAt": "2023-01-02T12:00:00Z"
     }
@@ -382,13 +339,13 @@ Creates a new template.
 - **Body**:
 ```json
 {
-  "title": "Custom SCR Extraction",
-  "description": "Extracts custom SCR data fields",
+  "title": "Custom Data Processing",
+  "description": "Processes data with custom fields",
   "model": "gpt-4o",
-  "instructions": "Extract all medication information with special attention to dosages and frequencies. Include all allergies with severity ratings. Format patient name as 'Surname, Forename'.",
+  "instructions": "Process all data with special attention to details. Format output according to the following structure...",
   "temperature": 0.7,
   "isDefault": false,
-  "assistantType": "scr-extraction"
+  "type": "data-processing"
 }
 ```
 
@@ -398,14 +355,14 @@ Creates a new template.
   "success": true,
   "data": {
     "id": "template_abc123",
-    "title": "Custom SCR Extraction",
-    "description": "Extracts custom SCR data fields",
+    "title": "Custom Data Processing",
+    "description": "Processes data with custom fields",
     "model": "gpt-4o",
-    "instructions": "Extract all medication information...",
+    "instructions": "Process all data with special attention...",
     "temperature": 0.7,
     "isDefault": false,
-    "assistantType": "scr-extraction",
-    "assistantTypeId": "at_123",
+    "type": "data-processing",
+    "typeId": "tp_123",
     "createdAt": "2023-01-01T12:00:00Z",
     "updatedAt": "2023-01-01T12:00:00Z"
   }
@@ -425,9 +382,8 @@ Creates a new template.
 ```
 
 **Notes:**
-- If `isDefault` is set to true, any existing default template for the same assistant type will be updated to `isDefault: false`
-- An OpenAI Assistant is automatically created and linked to the template
-- Valid assistant types are: `scr-extraction` and `csv-generation`
+- If `isDefault` is set to true, any existing default template for the same type will be updated to `isDefault: false`
+- Template types are configurable and depend on the modules enabled in your instance
 - Temperature must be between 0.0 and 2.0
 
 ### Get Template
@@ -446,14 +402,14 @@ Retrieves a specific template.
   "success": true,
   "data": {
     "id": "template_abc123",
-    "title": "Custom SCR Extraction",
-    "description": "Extracts custom SCR data fields",
+    "title": "Custom Data Processing",
+    "description": "Processes data with custom fields",
     "model": "gpt-4o",
-    "instructions": "Extract all medication information...",
+    "instructions": "Process all data with special attention...",
     "temperature": 0.7,
     "isDefault": false,
-    "assistantType": "scr-extraction",
-    "assistantTypeId": "at_123",
+    "type": "data-processing",
+    "typeId": "tp_123",
     "createdAt": "2023-01-01T12:00:00Z",
     "updatedAt": "2023-01-01T12:00:00Z"
   }
@@ -485,7 +441,7 @@ Updates a specific template.
 - **Body**: Fields to update (same format as create template)
 ```json
 {
-  "title": "Updated SCR Extraction",
+  "title": "Updated Data Processing",
   "description": "Updated description",
   "instructions": "Updated instructions...",
   "temperature": 0.8,
@@ -499,14 +455,14 @@ Updates a specific template.
   "success": true,
   "data": {
     "id": "template_abc123",
-    "title": "Updated SCR Extraction",
+    "title": "Updated Data Processing",
     "description": "Updated description",
     "model": "gpt-4o",
     "instructions": "Updated instructions...",
     "temperature": 0.8,
     "isDefault": true,
-    "assistantType": "scr-extraction",
-    "assistantTypeId": "at_123",
+    "type": "data-processing",
+    "typeId": "tp_123",
     "createdAt": "2023-01-01T12:00:00Z",
     "updatedAt": "2023-01-02T14:30:00Z"
   }
@@ -563,14 +519,14 @@ Deletes a specific template.
 ```
 
 **Notes:**
-- When a template is deleted, the associated OpenAI Assistant is also deleted
+- Default templates cannot be deleted
 - Any user selections referencing the template are also deleted
 
 ## Template Selection
 
 ### Get Active Templates
 
-Gets the user's currently selected templates for each assistant type.
+Gets the user's currently selected templates for each template type.
 
 - **URL**: `/api/templates/active`
 - **Method**: `GET`
@@ -584,28 +540,28 @@ Gets the user's currently selected templates for each assistant type.
     "selections": [
       {
         "id": "sel_abc123",
-        "assistantType": {
-          "id": "at_123",
-          "name": "scr-extraction",
-          "description": "Extract SCR data from PDF"
+        "type": {
+          "id": "tp_123",
+          "name": "data-processing",
+          "description": "Process data according to template"
         },
         "template": {
           "id": "template_abc123",
-          "title": "Standard SCR Extraction",
-          "description": "Extracts standard SCR data fields"
+          "title": "Standard Data Processing",
+          "description": "Processes data with standard fields"
         }
       },
       {
         "id": "sel_def456",
-        "assistantType": {
-          "id": "at_456",
-          "name": "csv-generation",
-          "description": "Generate CSV from extracted data"
+        "type": {
+          "id": "tp_456",
+          "name": "data-export",
+          "description": "Export data in specified format"
         },
         "template": {
           "id": "template_def456",
-          "title": "Standard CSV Generation",
-          "description": "Generates standard CSV format"
+          "title": "Standard Data Export",
+          "description": "Exports data in standard format"
         }
       }
     ]
@@ -615,7 +571,7 @@ Gets the user's currently selected templates for each assistant type.
 
 ### Set Active Template
 
-Sets a user's active template for a specific assistant type.
+Sets a user's active template for a specific template type.
 
 - **URL**: `/api/templates/active`
 - **Method**: `POST`
@@ -624,7 +580,7 @@ Sets a user's active template for a specific assistant type.
 - **Body**:
 ```json
 {
-  "assistantTypeId": "at_123",
+  "typeId": "tp_123",
   "templateId": "template_abc123"
 }
 ```
@@ -635,15 +591,15 @@ Sets a user's active template for a specific assistant type.
   "success": true,
   "data": {
     "id": "sel_abc123",
-    "assistantType": {
-      "id": "at_123",
-      "name": "scr-extraction",
-      "description": "Extract SCR data from PDF"
+    "type": {
+      "id": "tp_123",
+      "name": "data-processing",
+      "description": "Process data according to template"
     },
     "template": {
       "id": "template_abc123",
-      "title": "Standard SCR Extraction",
-      "description": "Extracts standard SCR data fields"
+      "title": "Standard Data Processing",
+      "description": "Processes data with standard fields"
     }
   }
 }
@@ -655,7 +611,7 @@ Sets a user's active template for a specific assistant type.
   "success": false,
   "data": null,
   "error": {
-    "message": "Template or assistant type not found",
+    "message": "Template or template type not found",
     "code": "NOT_FOUND"
   }
 }
@@ -681,7 +637,7 @@ Lists all available AI models.
         "id": "model_abc123",
         "openAIId": "gpt-4o",
         "name": "GPT-4o",
-        "description": "Most capable model for SCR extraction",
+        "description": "Most capable model for complex processing",
         "isImported": true
       },
       {
@@ -702,32 +658,40 @@ Lists all available AI models.
   "success": false,
   "data": null,
   "error": {
-    "message": "Failed to list available models",
+    "message": "Failed to fetch models",
     "code": "INTERNAL_ERROR"
   }
 }
 ```
 
-## User Management
+### Import Models
 
-### Get Current User
+Imports available models from OpenAI.
 
-Retrieves information about the current authenticated user.
-
-- **URL**: `/api/users/me`
-- **Method**: `GET`
-- **Authentication**: Required
+- **URL**: `/api/models/import`
+- **Method**: `POST`
+- **Authentication**: Required (Admin only)
 
 **Response:**
 ```json
 {
   "success": true,
   "data": {
-    "user": {
-      "id": "user_abc123",
-      "clerkId": "user_clerk_abc123",
-      "createdAt": "2023-01-01T12:00:00Z"
-    }
+    "imported": 2,
+    "models": [
+      {
+        "id": "model_abc123",
+        "openAIId": "gpt-4o",
+        "name": "GPT-4o",
+        "isImported": true
+      },
+      {
+        "id": "model_def456",
+        "openAIId": "gpt-3.5-turbo",
+        "name": "GPT-3.5 Turbo",
+        "isImported": true
+      }
+    ]
   }
 }
 ```
@@ -738,8 +702,96 @@ Retrieves information about the current authenticated user.
   "success": false,
   "data": null,
   "error": {
-    "message": "Unauthorized",
-    "code": "UNAUTHORIZED"
+    "message": "OpenAI API key not configured",
+    "code": "PROCESSING_FAILED"
+  }
+}
+```
+
+## User Management
+
+### Get Current User
+
+Gets information about the currently authenticated user.
+
+- **URL**: `/api/user`
+- **Method**: `GET`
+- **Authentication**: Required
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "user_abc123",
+    "clerkId": "user_clerk_abc123",
+    "email": "user@example.com",
+    "createdAt": "2023-01-01T12:00:00Z"
+  }
+}
+```
+
+### Update User Preferences
+
+Updates preferences for the current user.
+
+- **URL**: `/api/user/preferences`
+- **Method**: `PATCH`
+- **Authentication**: Required
+- **Content-Type**: `application/json`
+- **Body**:
+```json
+{
+  "theme": "dark",
+  "notifications": {
+    "email": true,
+    "browser": false
+  },
+  "defaultView": "list"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "preferences": {
+      "theme": "dark",
+      "notifications": {
+        "email": true,
+        "browser": false
+      },
+      "defaultView": "list"
+    },
+    "updatedAt": "2023-01-01T12:00:00Z"
+  }
+}
+```
+
+## System Settings
+
+### Get System Information
+
+Gets information about the system configuration.
+
+- **URL**: `/api/system/info`
+- **Method**: `GET`
+- **Authentication**: Required (Admin only)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "version": "1.2.3",
+    "modules": ["core", "ai-processing", "data-export"],
+    "environment": "production",
+    "integrations": {
+      "openai": true,
+      "clerk": true,
+      "vercel": true
+    }
   }
 }
 ```
