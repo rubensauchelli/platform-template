@@ -1,8 +1,8 @@
-# Omniflo Platform: User Guide
+# User Guide
 
 ## Introduction
 
-The Omniflo Platform is a versatile application designed to streamline data processing and workflow management with a modern, user-friendly interface. This guide provides detailed instructions on how to use the platform effectively.
+This application provides a versatile platform designed to streamline data processing and workflow management with a modern, user-friendly interface. This guide provides detailed instructions on how to use the platform effectively.
 
 ## Getting Started
 
@@ -18,7 +18,7 @@ The Omniflo Platform is a versatile application designed to streamline data proc
 
 ## Core Functionality
 
-The Omniflo Platform follows a simple four-step process for data processing:
+The application follows a simple four-step workflow for data processing:
 
 1. **Upload** - Upload your data file
 2. **Process** - Process the data using selected templates
@@ -29,19 +29,18 @@ The Omniflo Platform follows a simple four-step process for data processing:
 
 ### Step 1: Uploading a File
 
-1. From the main dashboard, you'll see the Data Processing card.
-2. Click on the **Data Processing** option in the sidebar.
-3. On the Data Processing page, you'll see a file upload area.
-4. Before uploading, ensure you have selected appropriate templates:
-   - Click on the **Templates** button in the top-right corner of the card
+1. From the main dashboard, select the **Data Processing** option in the sidebar.
+2. On the Data Processing page, you'll see a file upload area.
+3. Before uploading, ensure you have selected appropriate templates:
+   - Click on the **Templates** button in the top-right corner
    - Select a **Processing Template** for data processing
    - Select an **Export Template** for output generation
    - Both templates must be selected before uploading is enabled
-5. Drag and drop your file into the designated area or click to browse your files.
-6. The application will validate that:
+4. Drag and drop your file into the designated area or click to browse your files.
+5. The application will validate that:
    - The file is in an accepted format
-   - The file size does not exceed 20MB
-7. Once a valid file is selected, the **Process Data** button will become active.
+   - The file size does not exceed the configured limit
+6. Once a valid file is selected, the **Process Data** button will become active.
 
 ### Step 2: Processing Data
 
@@ -50,7 +49,7 @@ The Omniflo Platform follows a simple four-step process for data processing:
    - Uploading File
    - Processing Data
    - Generating Output
-3. The processing time will vary depending on the file size and complexity, typically taking 10-30 seconds.
+3. The processing time will vary depending on the file size and complexity.
 4. During processing, you cannot upload additional files or make other changes.
 
 ### Step 3: Reviewing and Downloading Results
@@ -67,7 +66,7 @@ Once processing is complete, the application will display:
 
 ## Template Management
 
-The Omniflo Platform allows you to customize how data is processed and formatted using templates.
+The application allows you to customize how data is processed and formatted using templates.
 
 ### Default Templates
 
@@ -80,9 +79,9 @@ The application comes with default templates for both processing and export. The
 3. Fill in the template details:
    - **Title**: A descriptive name for your template
    - **Description**: Information about the template's purpose
-   - **Model**: The AI model to use (if applicable)
+   - **Model** (if applicable): The AI model to use
    - **Template Type**: Select either "Data Processing" or "Data Export"
-   - **Temperature**: Adjust the AI's creativity level (0-2) if using AI features
+   - **Temperature** (if applicable): Adjust the AI's creativity level
    - **Instructions**: Detailed instructions for processing
    - **Set as Default**: Whether this template should be the default for its type
 
@@ -107,7 +106,7 @@ The application comes with default templates for both processing and export. The
 
 1. **File Upload Errors**
    - **Error**: "File too large"
-     - **Solution**: Ensure your file is less than 20MB
+     - **Solution**: Ensure your file is within the size limit
    - **Error**: "Unsupported file type"
      - **Solution**: Check the list of supported file formats
 
@@ -127,11 +126,11 @@ If you encounter issues not covered in this guide:
 
 1. Check the detailed error message for specific information
 2. Refer to the application documentation
-3. Contact your system administrator
+3. Contact your system administrator or support team
 
 ## Security and Data Privacy
 
-The Omniflo Platform prioritizes the security and privacy of your data:
+The application prioritizes the security and privacy of your data:
 
 1. **Authentication**: All users must authenticate before accessing the application
 2. **Data Protection**: Files are securely stored with appropriate access controls
@@ -145,16 +144,30 @@ The Omniflo Platform prioritizes the security and privacy of your data:
 3. **Regular Updates**: Keep the application updated for the latest features and security improvements
 4. **Data Verification**: Always verify the processed data for accuracy
 
-## FAQ
+## Customizing Your Experience
+
+### User Preferences
+The application allows you to customize your experience:
+
+1. **Theme**: Choose between light and dark mode
+2. **Default Views**: Set your preferred view for listings
+3. **Notifications**: Configure notification preferences
+
+To access these settings:
+1. Click your profile icon in the top-right corner
+2. Select "Preferences" from the dropdown menu
+3. Adjust settings as desired and save changes
+
+## Frequently Asked Questions
 
 **Q: How long are my uploaded files stored?**
-A: Files are stored according to your configured retention policy.
+A: Files are stored according to the configured retention policy.
 
 **Q: Can I process multiple files at once?**
-A: Currently, the application processes one file at a time.
+A: Check if batch processing is enabled in your instance.
 
 **Q: Is there a limit to how many files I can process?**
-A: There are no specific limits, but processing may be subject to rate limiting during high usage periods.
+A: Processing may be subject to rate limiting during high usage periods.
 
 **Q: Can I customize the output format?**
 A: Yes, you can create custom export templates to adjust the format.
