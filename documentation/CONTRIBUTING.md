@@ -1,6 +1,6 @@
-# Contributing to Omniflo Platform
+# Contributing Guide
 
-Thank you for your interest in contributing to the Omniflo Platform! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to this project! This document provides guidelines and instructions for contributing.
 
 ## Table of Contents
 
@@ -22,7 +22,7 @@ This project adheres to a Code of Conduct that sets expectations for participati
 
 ## How Can I Contribute?
 
-There are many ways you can contribute to the Omniflo Platform:
+There are many ways you can contribute to this project:
 
 1. **Report Bugs**: If you find a bug, please create an issue using the bug report template.
 2. **Suggest Enhancements**: Have an idea for a new feature? Submit a feature request.
@@ -36,8 +36,8 @@ To set up your development environment:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/omniflo/platform-template.git
-   cd platform-template
+   git clone https://github.com/organization/project-name.git
+   cd project-name
    ```
 
 2. **Install dependencies**:
@@ -51,7 +51,7 @@ To set up your development environment:
    cp .env.example .env.local
    ```
 
-4. **Initialize the database**:
+4. **Initialize the database** (if applicable):
    ```bash
    npx prisma migrate dev
    ```
@@ -139,8 +139,8 @@ Please ensure your code includes appropriate tests:
 
 ## Security Vulnerabilities
 
-If you discover a security vulnerability, please do NOT open an issue. Email security@omniflo.health instead with details about the vulnerability.
+If you discover a security vulnerability, please do NOT open an issue. Email security@organization.com instead with details about the vulnerability.
 
 ## License
 
-By contributing to the Omniflo Platform, you agree that your contributions will be licensed under the project's license. 
+By contributing to this project, you agree that your contributions will be licensed under the project's license. 
