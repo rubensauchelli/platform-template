@@ -1,6 +1,6 @@
-# Omniflo Platform: Installation & Setup Guide
+# Installation & Setup Guide
 
-This guide provides detailed instructions for installing, configuring, and deploying the Omniflo Platform in various environments.
+This guide provides detailed instructions for installing, configuring, and deploying the application in various environments.
 
 ## Local Development Setup
 
@@ -10,18 +10,18 @@ Make sure you have the following installed on your system:
 
 - **Node.js**: v18.0.0 or higher (required for built-in fetch API support)
 - **npm**: v8.0.0 or higher (comes with Node.js)
-- **PostgreSQL**: v14.0 or higher
+- **PostgreSQL**: v14.0 or higher (if using PostgreSQL as your database)
 - **Git**: For version control
 
 You'll also need accounts and API keys for (optional, depending on features you want to use):
-- **OpenAI**: For AI integration features
-- **Clerk**: For authentication
+- **AI Provider**: For AI integration features (e.g., OpenAI, Azure OpenAI)
+- **Authentication Provider**: For user authentication (e.g., Clerk, Auth.js)
 
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/omniflo/platform-template.git
-cd platform-template
+git clone https://github.com/organization/project-name.git
+cd project-name
 ```
 
 ### Step 2: Install Dependencies
@@ -32,18 +32,24 @@ npm install
 
 ### Step 3: Set Up Environment Variables
 
-Create a `.env.local` file in the root directory and add the following variables:
+Create a `.env.local` file in the root directory using the provided example:
+
+```bash
+cp .env.example .env.local
+```
+
+Then edit `.env.local` to include the necessary environment variables:
 
 ```
-# Authentication (optional)
+# Authentication (if using Clerk)
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 
-# OpenAI (optional)
+# AI Integration (if using OpenAI)
 OPENAI_API_KEY=sk-...
 
 # Database
-DATABASE_URL="postgresql://username:password@localhost:5432/omniflo_platform"
+DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
 
 # Application
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -53,7 +59,7 @@ Replace the placeholder values with your actual API keys and database connection
 
 ### Step 4: Set Up the Database
 
-First, make sure your PostgreSQL server is running. Then initialize the database:
+First, make sure your database server is running. Then initialize the database:
 
 ```bash
 # Generate Prisma client
@@ -87,7 +93,7 @@ The application should now be running at `http://localhost:3000`.
 
 2. **Configure Environment Variables**
    - Add all the same environment variables from your local `.env.local` file
-   - For the database, use a production PostgreSQL instance (e.g., Vercel Postgres, Supabase, or AWS RDS)
+   - For the database, use a production database instance (e.g., Vercel Postgres, Neon, Supabase, or AWS RDS)
 
 3. **Configure Build Settings**
    - Build Command: `npm run build`
@@ -106,12 +112,12 @@ The application should now be running at `http://localhost:3000`.
 
 #### Prerequisites
 - Docker and Docker Compose installed
-- Access to a PostgreSQL database
+- Access to a database server
 
 #### Step 1: Build the Docker Image
 
 ```bash
-docker build -t omniflo-platform .
+docker build -t project-name .
 ```
 
 #### Step 2: Create a docker-compose.yml File
@@ -120,7 +126,7 @@ docker build -t omniflo-platform .
 version: '3'
 services:
   app:
-    image: omniflo-platform
+    image: project-name
     ports:
       - "3000:3000"
     environment:
@@ -128,7 +134,7 @@ services:
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
       - CLERK_SECRET_KEY=sk_test_...
       - OPENAI_API_KEY=sk-...
-      - DATABASE_URL=postgresql://username:password@db:5432/omniflo_platform
+      - DATABASE_URL=postgresql://username:password@db:5432/database_name
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
     depends_on:
       - db
@@ -139,12 +145,12 @@ services:
     environment:
       - POSTGRES_PASSWORD=your_password
       - POSTGRES_USER=username
-      - POSTGRES_DB=omniflo_platform
+      - POSTGRES_DB=database_name
 volumes:
   postgres_data:
 ```
 
-Replace the placeholder values with your actual API keys and database credentials.
+Replace the placeholder values with your actual configuration.
 
 #### Step 3: Run with Docker Compose
 
@@ -157,16 +163,16 @@ The application should now be running at `http://localhost:3000`.
 ### Option 3: Traditional Hosting
 
 #### Prerequisites
-- Node.js server (e.g., AWS EC2, DigitalOcean Droplet)
-- Access to a PostgreSQL database
+- Node.js server (e.g., AWS EC2, DigitalOcean Droplet, Azure VM)
+- Access to a database server
 - Nginx or similar for reverse proxy (optional)
 
 #### Step 1: Clone and Build the Application
 
 ```bash
 # Clone the repository
-git clone https://github.com/omniflo/platform-template.git
-cd platform-template
+git clone https://github.com/organization/project-name.git
+cd project-name
 
 # Install dependencies
 npm install
@@ -188,7 +194,7 @@ For a production environment, you can use PM2 to manage the Node.js process:
 npm install -g pm2
 
 # Start the application
-pm2 start npm --name "omniflo-platform" -- start
+pm2 start npm --name "project-name" -- start
 ```
 
 #### Step 4: Configure Nginx (Optional)
@@ -211,10 +217,10 @@ server {
 }
 ```
 
-Save this to `/etc/nginx/sites-available/omniflo-platform` and enable it:
+Save this to `/etc/nginx/sites-available/project-name` and enable it:
 
 ```bash
-ln -s /etc/nginx/sites-available/omniflo-platform /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/project-name /etc/nginx/sites-enabled/
 nginx -t
 systemctl reload nginx
 ```
@@ -223,60 +229,65 @@ systemctl reload nginx
 
 ### Initial Setup
 
-The application will automatically create the necessary database tables when you run `npx prisma db push`. However, there are some initial seed data you may want to add:
+The application will automatically create the necessary database tables when you run `npx prisma db push`. For a production environment, you should use proper migrations:
 
-#### Setting Up Assistant Types
+```bash
+npx prisma migrate dev --name init
+```
 
-You'll need to create two assistant types in the database:
+### Seeding the Database (Optional)
 
-1. SCR Extraction Assistant
-2. CSV Generation Assistant
+If your application requires initial data, you can create a seed script in `prisma/seed.ts` and run it with:
 
-These can be added through the application's admin interface or directly via the database.
+```bash
+npx prisma db seed
+```
 
 ### Database Backups
 
-For production environments, set up regular backups of your PostgreSQL database:
+For production environments, set up regular backups of your database:
 
 ```bash
-# Example backup command
-pg_dump -U username -d omniflo_platform > backup_$(date +%Y%m%d).sql
+# Example backup command for PostgreSQL
+pg_dump -U username -d database_name > backup_$(date +%Y%m%d).sql
 ```
 
 Consider automating this with a cron job:
 
 ```
-0 0 * * * pg_dump -U username -d omniflo_platform > /path/to/backups/backup_$(date +%Y%m%d).sql
+0 0 * * * pg_dump -U username -d database_name > /path/to/backups/backup_$(date +%Y%m%d).sql
 ```
 
-## OpenAI Setup (Optional)
+## Third-Party Service Setup
 
-### Setting Up AI Integration
+### AI Integration (Optional)
 
-If you're using the AI integration features of the Omniflo Platform, you'll need to configure OpenAI:
+If you're using AI integration features, you'll need to configure your AI provider:
 
-1. **Create an OpenAI Account**
-   - Sign up at [platform.openai.com](https://platform.openai.com)
+1. **Create an Account**
+   - Sign up at the AI provider's platform (e.g., [platform.openai.com](https://platform.openai.com))
    - Set up billing for API access
 
 2. **Generate an API Key**
-   - Go to API Keys section in your OpenAI dashboard
+   - Go to API Keys section in your provider's dashboard
    - Create a new API key and copy it
-   - Add the key to your environment variables as `OPENAI_API_KEY`
+   - Add the key to your environment variables (e.g., `OPENAI_API_KEY`)
 
 3. **Configure AI Models**
-   - The application allows use of various models (gpt-4o, gpt-3.5-turbo, etc.)
-   - Models can be selected based on the performance and cost requirements
+   - The application supports various models depending on your provider
+   - Models can be selected based on performance and cost requirements
 
-## Clerk Authentication Setup (Optional)
+### Authentication Setup (Optional)
 
-### Creating a Clerk Application
+If you're using Clerk for authentication:
 
 1. Sign up for a Clerk account at [clerk.com](https://clerk.com)
 2. Create a new application
 3. Configure authentication methods (email, social logins, etc.)
 4. Set allowed domains for your application
 5. Copy the API keys to your environment variables
+
+If using a different authentication provider, follow their specific setup instructions.
 
 ## Maintenance Tasks
 
@@ -312,17 +323,19 @@ npx prisma migrate deploy
 
 If you see errors connecting to the database:
 
-1. Check if PostgreSQL is running: `pg_isready`
+1. Check if your database server is running
 2. Verify your DATABASE_URL is correct
 3. Ensure database user has appropriate permissions
+4. Check firewall rules if connecting to a remote database
 
-#### OpenAI API Issues
+#### API Integration Issues
 
-If you encounter OpenAI API errors:
+If you encounter API errors with third-party services:
 
 1. Verify your API key is valid and has sufficient permissions
-2. Check if you have billing set up on your OpenAI account
-3. Ensure you have access to the required models
+2. Check if you have billing set up on your provider account
+3. Ensure you have access to the required services/models
+4. Check API rate limits and quotas
 
 #### Next.js Build Errors
 
@@ -331,11 +344,13 @@ If the build fails:
 1. Clear the `.next` directory: `rm -rf .next`
 2. Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
 3. Check for TypeScript errors: `npm run type-check`
+4. Verify your Node.js version meets the requirements
 
 ### Getting Help
 
 If you continue to experience issues:
 
 1. Check the application logs for detailed error messages
-2. Review the [technical documentation](technical-guide.md)
-3. Reach out to the development team with specific error details 
+2. Review the project documentation
+3. Check for known issues in the repository's issue tracker
+4. Reach out to the development team with specific error details 
