@@ -1,21 +1,21 @@
-# Security & Authentication
+# Security & Authentication Guide
 
-This document outlines the security measures implemented in the Omniflo Platform to protect user data, ensure secure authentication, and maintain application integrity.
+This document outlines the security measures implemented in the application to protect user data, ensure secure authentication, and maintain application integrity.
 
 ## Authentication
 
-The application uses Clerk, a secure authentication provider, to handle user identity and access management.
+The application uses a secure authentication provider to handle user identity and access management.
 
 ### Authentication Flow
 
-1. **User Registration**: Configured as invite-only to control access
-2. **Authentication**: JWT-based authentication with Clerk
-3. **Session Management**: Secure cookie-based sessions handled by Clerk
+1. **User Registration**: Configurable as open or invite-only to control access
+2. **Authentication**: JWT-based authentication
+3. **Session Management**: Secure cookie-based sessions
 4. **Token Refresh**: Automatic token refresh to maintain sessions
 
 ### Implementation Details
 
-- **Middleware**: Implemented using `clerkMiddleware` with a deny-by-default approach
+- **Middleware**: Implemented with a deny-by-default approach
 - **Protected Routes**: All routes except explicitly public ones require authentication
 - **Public Routes**: Configured in the middleware.ts file:
 
@@ -27,8 +27,7 @@ const publicRoutes = createRouteMatcher([
   '/sign-up(.*)',                    // Sign up pages
   
   // Public API endpoints
-  '/api/webhooks/clerk',             // Clerk webhook endpoint
-  '/api/webhooks/(.*)',              // Other webhook endpoints
+  '/api/webhooks/(.*)',              // Webhook endpoints
   
   // Public assets
   '/favicon.ico',
@@ -36,7 +35,7 @@ const publicRoutes = createRouteMatcher([
   '/sitemap.xml',
 ]);
 
-export default clerkMiddleware(async (auth, req: NextRequest) => {
+export default authMiddleware(async (auth, req: NextRequest) => {
   const isPublic = publicRoutes(req);
   
   // Protect all routes except public ones
@@ -58,15 +57,15 @@ export const config = {
 
 ### User Management
 
-- **User Creation**: Managed through Clerk webhooks
-- **User Synchronization**: Clerk users are synchronized with the internal database
-- **ID Mapping**: Application uses internal user IDs mapped from Clerk IDs through a utility function:
+- **User Creation**: Managed through authentication provider webhooks
+- **User Synchronization**: External auth users are synchronized with the internal database
+- **ID Mapping**: Application uses internal user IDs mapped from external IDs through a utility function:
 
 ```typescript
 // src/lib/auth.ts
-export async function getInternalUserId(clerkId: string): Promise<string> {
+export async function getInternalUserId(externalId: string): Promise<string> {
   const user = await prisma.user.findUnique({
-    where: { clerkId }
+    where: { externalId }
   })
 
   if (!user) {
@@ -81,11 +80,11 @@ export async function getInternalUserId(clerkId: string): Promise<string> {
 
 ### HTTPS Enforcement
 
-All API communications are secured using HTTPS with TLS 1.2+. This is enforced by our hosting provider (Vercel) and configured in the application.
+All API communications are secured using HTTPS with TLS 1.2+. This is enforced by the hosting provider and configured in the application.
 
 ### Security Headers
 
-The application includes the following security headers for all responses, configured in the vercel.json file:
+The application includes security headers for all responses:
 
 ```json
 {
@@ -104,6 +103,10 @@ The application includes the following security headers for all responses, confi
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;"
         }
       ]
     }
@@ -115,11 +118,11 @@ The application includes the following security headers for all responses, confi
 
 - **Client-Side Validation**: Form inputs are validated with custom validation logic
 - **Server-Side Validation**: All API endpoints validate inputs through type checking and validation functions
-- **Zod Schema Validation**: Complex types are validated with Zod for type safety
+- **Schema Validation**: Complex types are validated with schema validation libraries
 - **Content Type Verification**: File uploads are verified for correct MIME types before processing:
 
 ```typescript
-// File type validation example from src/app/api/upload/route.ts
+// File type validation example
 if (!isValidFileType(file.type, allowedFileTypes)) {
   return NextResponse.json({
     success: false,
@@ -136,9 +139,9 @@ if (!isValidFileType(file.type, allowedFileTypes)) {
 
 Rate limiting is implemented to prevent abuse and ensure fair resource allocation:
 
-- **User Limits**: 100 requests per hour per user
-- **AI Quota**: Configurable token limits monitored and enforced (when using AI features)
-- **Concurrent Processing**: Maximum of 5 concurrent processing jobs
+- **User Limits**: Configurable requests per hour per user
+- **API Quota**: Token limits monitored and enforced (when using external APIs)
+- **Concurrent Processing**: Limits on concurrent processing jobs
 - **Error Handling**: Exponential backoff for failed requests
 - **Monitoring**: Real-time usage tracking and alerts
 
@@ -173,7 +176,7 @@ Standard error codes:
 
 ### File Security
 
-- **Maximum Size**: 20MB limit for uploaded files
+- **Maximum Size**: Configurable limit for uploaded files
 - **Format Validation**: Configurable file type validation (enforced via MIME type checking)
 - **Storage**: Files are stored securely with appropriate access controls
 - **Retention**: Configurable retention policies with automatic cleanup
@@ -182,14 +185,14 @@ Standard error codes:
 ### Personal Information
 
 - **Data Minimization**: Only necessary data is collected and processed
-- **PII Protection**: Personal Identifiable Information is not stored permanently in the database
+- **PII Protection**: Personal Identifiable Information is handled according to data protection regulations
 - **Data Anonymization**: Logs and analytics exclude sensitive information
 - **Access Control**: Access to personal data is restricted by user permission checks
 
 ### Database Security
 
 - **Connection Security**: Database connections use encrypted transport (TLS)
-- **Query Protection**: Prisma ORM provides parameterized queries to prevent SQL injection
+- **Query Protection**: ORM provides parameterized queries to prevent SQL injection
 - **Data Isolation**: Multi-tenant data is strictly isolated through user-based access control
 - **Schema Design**: Proper relationships and constraints maintain data integrity
 
@@ -203,10 +206,10 @@ Standard error codes:
 
 ### Resource Ownership
 
-- **Template Ownership**: Templates are scoped to their creator through the userId field:
+- **Resource Ownership**: Resources are scoped to their creator through the userId field:
   ```typescript
-  // Example permission check for templates
-  const template = await prisma.template.findFirst({
+  // Example permission check for resources
+  const resource = await prisma.resource.findFirst({
     where: { 
       id,
       userId // Enforces ownership
@@ -220,35 +223,39 @@ Standard error codes:
 
 ### Signature Verification
 
-- **Clerk Webhooks**: Verified using SVIX signature verification
+- **Webhooks**: Verified using signature verification
 - **Webhook Secret**: Securely stored in environment variables
 - **Request Validation**: Headers and payloads are validated
 
-Example implementation in src/app/api/webhooks/clerk/route.ts:
+Example implementation for webhook verification:
 
 ```typescript
 export async function POST(req: Request): Promise<Response> {
   const headerPayload = headers();
-  const svix_id = headerPayload.get('svix-id');
-  const svix_timestamp = headerPayload.get('svix-timestamp');
-  const svix_signature = headerPayload.get('svix-signature');
+  const signature_id = headerPayload.get('signature-id');
+  const signature_timestamp = headerPayload.get('signature-timestamp');
+  const signature = headerPayload.get('signature');
 
-  if (!svix_id || !svix_timestamp || !svix_signature) {
+  if (!signature_id || !signature_timestamp || !signature) {
     return new Response('Missing webhook headers', { status: HTTP_STATUS.UNAUTHORIZED });
   }
 
   try {
     const payload = await req.text();
-    evt = wh.verify(payload, {
-      'svix-id': svix_id,
-      'svix-timestamp': svix_timestamp,
-      'svix-signature': svix_signature,
-    }) as WebhookEvent;
+    const isValid = verifyWebhookSignature(
+      payload,
+      signature,
+      process.env.WEBHOOK_SECRET
+    );
+    
+    if (!isValid) {
+      throw new Error('Invalid signature');
+    }
+    
+    // Process webhook event...
   } catch (err) {
     return new Response('Invalid signature', { status: HTTP_STATUS.UNAUTHORIZED });
   }
-  
-  // Process webhook event...
 }
 ```
 
@@ -257,7 +264,7 @@ export async function POST(req: Request): Promise<Response> {
 ### API Key Management
 
 - **Key Storage**: API keys stored in environment variables, never exposed to clients
-- **Key Rotation**: Regular key rotation policy (90-day rotation schedule)
+- **Key Rotation**: Regular key rotation policy
 - **Access Scoping**: Keys have minimal necessary permissions
 
 Secure initialization example for third-party services:
@@ -292,17 +299,10 @@ export const serviceClient = new ServiceClient({
 
 ### Infrastructure Security
 
-- **Provider**: Deployed on Vercel with built-in security features
-- **Edge Network**: Global CDN with DDoS protection
+- **Edge Network**: CDN with DDoS protection (when available)
 - **Function Isolation**: Serverless functions run in isolated environments
-- **Resource Limits**: Function execution limited to 60 seconds as configured in vercel.json:
-  ```json
-  "functions": {
-    "src/app/api/**/route.ts": { 
-      "maxDuration": 60 
-    }
-  }
-  ```
+- **Resource Limits**: Function execution time limits to prevent resource exhaustion
+- **Auto-scaling**: Resource management to handle varying loads securely
 
 ## Monitoring and Logging
 
@@ -320,7 +320,7 @@ export const serviceClient = new ServiceClient({
 - **API Access**: Recording of API access patterns and failures
 - **Log Protection**: Logs are secured and cannot be tampered with
 
-Example logging pattern used throughout the application:
+Example logging pattern:
 
 ```typescript
 // API request logging
@@ -373,12 +373,12 @@ console.error('❌ Operation failed', {
   - User data retained only as long as necessary
   
 - **User Rights**: Support for data access and deletion requests
-  - Account deletion through Clerk
+  - Account deletion
   - Data export functionality
 
 ## Future Security Enhancements
 
-1. **Multi-factor authentication**: Implementation through Clerk's MFA capabilities
+1. **Multi-factor authentication**: Implementation for enhanced security
 2. **Enhanced logging and monitoring**: Integration with dedicated logging service
 3. **Regular security penetration testing**: Scheduled vulnerability assessments
 4. **Advanced threat detection**: Implementation of behavior analysis for unusual patterns
