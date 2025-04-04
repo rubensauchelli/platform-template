@@ -9,4 +9,16 @@ export interface UserContextState {
 
 export interface UserContextValue extends UserContextState {
   updateUser: (user: ClerkUser | null) => void;
-} 
+}
+
+/**
+ * User type for API responses
+ */
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+}; 

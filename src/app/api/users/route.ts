@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ApiResponse, ErrorCode } from "@/types/api";
-
-// Only define User type since it's not in our existing types
-type User = {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import { User } from "@/types/user";
 
 /**
  * Simple auth check for the example
