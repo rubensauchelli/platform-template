@@ -20,20 +20,24 @@ const publicRoutes = createRouteMatcher([
   '/sitemap.xml',
 ]);
 
-// Define routes that should always be protected
+// Define API routes that should always be protected
 const protectedApiRoutes = createRouteMatcher(['/api/users(.*)']);
 
-export default clerkMiddleware(async (auth, req) => {
-  // Check if the route is public
-  const isPublic = publicRoutes(req);
-  
-  // If it's not a public route and it's a protected API route, enforce authentication
-  if (!isPublic && protectedApiRoutes(req)) {
-    await auth.protect();
-  }
+// Export the middleware function with debug mode in development
+export default clerkMiddleware(
+  async (auth, req) => {
+    // Check if the route is public
+    const isPublic = publicRoutes(req);
+    
+    // If it's not a public route and it's a protected API route, enforce authentication
+    if (!isPublic && protectedApiRoutes(req)) {
+      await auth.protect();
+    }
 
-  return NextResponse.next();
-});
+    return NextResponse.next();
+  },
+  { debug: process.env.NODE_ENV === 'development' }
+);
 
 // Configure middleware to run on all routes except for static files
 export const config = {
