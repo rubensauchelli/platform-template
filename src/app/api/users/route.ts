@@ -1,17 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ApiResponse, ErrorCode } from "@/types/api";
 import { User } from "@/types/user";
-
-/**
- * Simple auth check for the example
- * In a real application, use a proper auth solution
- */
-function checkAuth(req: NextRequest): boolean {
-  // This is just a placeholder for a real auth check
-  // In a real app, you would verify a token or session
-  const authHeader = req.headers.get("authorization");
-  return !!authHeader;
-}
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 /**
  * GET /api/users
@@ -22,8 +12,11 @@ export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<User[]>>> {
   try {
-    // Simple auth check for example purposes
-    if (!checkAuth(request)) {
+    // Use Clerk's auth() to verify authentication
+    const { userId } = await auth();
+    
+    // If no userId, the user is not authenticated
+    if (!userId) {
       return NextResponse.json(
         {
           success: false,
@@ -96,8 +89,11 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<User>>> {
   try {
-    // Simple auth check for example purposes
-    if (!checkAuth(request)) {
+    // Use Clerk's auth() to verify authentication
+    const { userId } = await auth();
+    
+    // If no userId, the user is not authenticated
+    if (!userId) {
       return NextResponse.json(
         {
           success: false,
