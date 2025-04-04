@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ApiResponse, ErrorCode } from "@/types/api";
 
-// API Response types
+// Only define User type since it's not in our existing types
 type User = {
   id: string;
   email: string;
@@ -8,15 +9,6 @@ type User = {
   role: string;
   createdAt: string;
   updatedAt: string;
-};
-
-type ApiResponse<T> = {
-  success: boolean;
-  data: T | null;
-  error?: {
-    message: string;
-    code: string;
-  };
 };
 
 /**
@@ -47,7 +39,7 @@ export async function GET(
           data: null,
           error: {
             message: "Unauthorized",
-            code: "UNAUTHORIZED",
+            code: ErrorCode.UNAUTHORIZED,
           },
         },
         { status: 401 }
@@ -96,7 +88,7 @@ export async function GET(
         data: null,
         error: {
           message: "Failed to fetch users",
-          code: "INTERNAL_ERROR",
+          code: ErrorCode.INTERNAL_ERROR,
         },
       },
       { status: 500 }
@@ -121,7 +113,7 @@ export async function POST(
           data: null,
           error: {
             message: "Unauthorized",
-            code: "UNAUTHORIZED",
+            code: ErrorCode.UNAUTHORIZED,
           },
         },
         { status: 401 }
@@ -158,7 +150,7 @@ export async function POST(
         data: null,
         error: {
           message: "Failed to create user",
-          code: "INTERNAL_ERROR",
+          code: ErrorCode.INTERNAL_ERROR,
         },
       },
       { status: 500 }
