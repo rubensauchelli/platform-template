@@ -32,7 +32,7 @@ const data = {
     },
     {
       title: "Users",
-      url: "/api/users",
+      url: "/users",
       icon: Users,
     },
   ],
