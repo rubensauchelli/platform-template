@@ -15,31 +15,6 @@ async function main() {
   });
 
   console.log('Created test user:', testUser.id);
-
-  // Create sample projects
-  const project1 = await prisma.project.upsert({
-    where: { id: 'project1' },
-    update: {},
-    create: {
-      id: 'project1',
-      name: 'Sample Project 1',
-      description: 'This is a sample project for testing purposes',
-      userId: testUser.id,
-    },
-  });
-
-  const project2 = await prisma.project.upsert({
-    where: { id: 'project2' },
-    update: {},
-    create: {
-      id: 'project2',
-      name: 'Sample Project 2',
-      description: 'Another sample project for testing',
-      userId: testUser.id,
-    },
-  });
-
-  console.log('Created sample projects:', project1.id, project2.id);
   console.log('Database seeding completed.');
 }
 
