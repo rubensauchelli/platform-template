@@ -5,12 +5,11 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import {
   Cross,
-  FileSpreadsheet,
-  Bot,
+  LayoutDashboard,
+  Users,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -23,18 +22,18 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
 
-// This is sample data.
+// Updated navigation data
 const data = {
   navMain: [
     {
-      title: "SCR Extraction",
-      url: "/scr-extraction",
-      icon: FileSpreadsheet,
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
     },
     {
-      title: "AI Templates",
-      url: "/templates",
-      icon: Bot,
+      title: "Users",
+      url: "/api/users",
+      icon: Users,
     },
   ],
 }
@@ -59,8 +58,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Cross className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Clinic Tools</span>
-                  <span className="text-xs text-sidebar-foreground/70">Admin</span>
+                  <span className="font-semibold">Omniflo</span>
+                  <span className="text-xs text-sidebar-foreground/70">Platform</span>
                 </div>
               </Link>
             </SidebarMenuButton>
