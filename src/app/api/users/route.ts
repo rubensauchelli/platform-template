@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ApiResponse, ErrorCode } from "@/types/api";
 import { User } from "@/types/user";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 /**
  * GET /api/users
  * 
  * Retrieves a list of users with pagination
+ * In a real application, this would query your database where you store
+ * application-specific user data with Clerk userIds as foreign keys
  */
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<User[]>>> {
   try {
-    // Use Clerk's auth() to verify authentication
+    // Use Clerk's auth() to verify authentication - efficient with no API call
     const { userId } = await auth();
     
     // If no userId, the user is not authenticated
@@ -35,7 +37,10 @@ export async function GET(
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     
-    // In a real application, you would fetch users from a database
+    // In a real application, you would fetch users from your database
+    // where you store application-specific user data
+    // Example: await db.users.findMany({ take: limit, skip: (page - 1) * limit })
+    
     // This is a mock response for the template
     const mockUsers: User[] = [
       {
@@ -72,71 +77,6 @@ export async function GET(
         data: null,
         error: {
           message: "Failed to fetch users",
-          code: ErrorCode.INTERNAL_ERROR,
-        },
-      },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * POST /api/users
- * 
- * Creates a new user
- */
-export async function POST(
-  request: NextRequest
-): Promise<NextResponse<ApiResponse<User>>> {
-  try {
-    // Use Clerk's auth() to verify authentication
-    const { userId } = await auth();
-    
-    // If no userId, the user is not authenticated
-    if (!userId) {
-      return NextResponse.json(
-        {
-          success: false,
-          data: null,
-          error: {
-            message: "Unauthorized",
-            code: ErrorCode.UNAUTHORIZED,
-          },
-        },
-        { status: 401 }
-      );
-    }
-
-    // Parse request body
-    const body = await request.json();
-    
-    // In a real application, validate the input and create a user in the database
-    // This is a mock response for the template
-    const newUser: User = {
-      id: `user_${Date.now()}`,
-      email: body.email || "new@example.com",
-      name: body.name || "New User",
-      role: body.role || "user",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: newUser,
-      },
-      { status: 201 }
-    );
-  } catch (error) {
-    console.error("Error creating user:", error);
-    
-    return NextResponse.json(
-      {
-        success: false,
-        data: null,
-        error: {
-          message: "Failed to create user",
           code: ErrorCode.INTERNAL_ERROR,
         },
       },
