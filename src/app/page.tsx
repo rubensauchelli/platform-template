@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
@@ -7,18 +9,18 @@ export default function Home() {
           A modern web application template with authentication and API routes.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a 
+          <Link 
             href="/sign-in" 
             className="text-white bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium"
           >
             Sign In
-          </a>
-          <a 
+          </Link>
+          <Link 
             href="/sign-up" 
             className="text-blue-600 border border-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg font-medium"
           >
             Sign Up
-          </a>
+          </Link>
         </div>
       </div>
     </div>
