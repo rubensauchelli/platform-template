@@ -5,15 +5,15 @@ A modern web application template built with Next.js, featuring authentication, 
 
 ## Features
 - **Authentication**: Secure user authentication via Clerk.
-- **Modern UI**: Clean, responsive interface with customizable components.
+- **Modern UI**: Clean, responsive interface with customizable components using Shadcn UI.
 - **Serverless Architecture**: Built for cloud deployment with optimal performance.
 - **Type Safety**: Full TypeScript support throughout the codebase.
 - **Database Integration**: Configured with Prisma ORM for flexible database operations.
 - **API Framework**: Well-structured API routes for backend functionality.
-- **AI Capabilities**: Integration with OpenAI and other AI services.
-- **Template System**: Customizable templates for various content and workflows.
-- **Role-Based Access**: Granular control over user permissions.
+- **OpenAI Integration**: Built-in utilities for working with OpenAI APIs.
 - **Secure By Design**: Built with security best practices in mind.
+
+> Note: While the codebase includes support for OpenAI integration and has structures for template workflows, some features mentioned in the documentation may require additional implementation to fully activate.
 
 ## Tech Stack
 ### **Frontend**
@@ -32,7 +32,7 @@ A modern web application template built with Next.js, featuring authentication, 
   - Compatible with various database providers (PostgreSQL, MySQL, SQLite)
 
 ### **AI Integration**
-- **Service**: OpenAI API (optional)
+- **Service**: OpenAI API with built-in utility functions and types
 
 ### **Deployment**
 - **Recommended**: Vercel
