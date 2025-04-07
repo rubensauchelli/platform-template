@@ -54,6 +54,13 @@ cp .env.example .env.local
 # Edit .env.local with your configuration
 ```
 
+> **IMPORTANT**: This template requires Clerk for authentication. You must provide the following environment variables for the application to function properly:
+> - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: Your Clerk publishable key
+> - `CLERK_SECRET_KEY`: Your Clerk secret key
+> - `CLERK_WEBHOOK_SECRET`: Your Clerk webhook secret (for user events)
+>
+> You can get these keys from the [Clerk Dashboard](https://dashboard.clerk.com).
+
 4. **Run the development server**:
 ```bash
 npm run dev

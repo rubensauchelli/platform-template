@@ -1,25 +1,35 @@
-import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Webhook } from 'svix';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { HTTP_STATUS } from '@/types/api';
 
-const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
+// Get webhook secret at runtime rather than initialization
+const getWebhookSecret = () => process.env.CLERK_WEBHOOK_SECRET;
 
-if (!webhookSecret) {
-  throw new Error('Missing CLERK_WEBHOOK_SECRET environment variable');
-}
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  const webhookSecret = getWebhookSecret();
+  
+  // Return error if webhook secret is missing
+  if (!webhookSecret) {
+    console.warn('Missing CLERK_WEBHOOK_SECRET environment variable');
+    return NextResponse.json(
+      { error: 'Webhook secret not configured' },
+      { status: HTTP_STATUS.SERVER_ERROR }
+    );
+  }
 
-const wh = new Webhook(webhookSecret as string);
-
-export async function POST(req: Request): Promise<Response> {
-  const headerPayload = headers();
-  const svix_id = headerPayload.get('svix-id');
-  const svix_timestamp = headerPayload.get('svix-timestamp');
-  const svix_signature = headerPayload.get('svix-signature');
+  const wh = new Webhook(webhookSecret);
+  
+  const svix_id = req.headers.get('svix-id');
+  const svix_timestamp = req.headers.get('svix-timestamp');
+  const svix_signature = req.headers.get('svix-signature');
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response('Missing webhook headers', { status: HTTP_STATUS.UNAUTHORIZED });
+    return NextResponse.json(
+      { error: 'Missing webhook headers' },
+      { status: HTTP_STATUS.UNAUTHORIZED }
+    );
   }
 
   let evt: WebhookEvent;
@@ -32,7 +42,10 @@ export async function POST(req: Request): Promise<Response> {
       'svix-signature': svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    return new Response('Invalid signature', { status: HTTP_STATUS.UNAUTHORIZED });
+    return NextResponse.json(
+      { error: 'Invalid signature' },
+      { status: HTTP_STATUS.UNAUTHORIZED }
+    );
   }
 
   try {
@@ -62,8 +75,14 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
 
-    return new Response('Webhook processed successfully', { status: HTTP_STATUS.SUCCESS });
+    return NextResponse.json(
+      { message: 'Webhook processed successfully' },
+      { status: HTTP_STATUS.SUCCESS }
+    );
   } catch (error) {
-    return new Response('Internal Server Error', { status: HTTP_STATUS.SERVER_ERROR });
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: HTTP_STATUS.SERVER_ERROR }
+    );
   }
 } 

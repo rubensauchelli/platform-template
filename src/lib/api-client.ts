@@ -99,7 +99,7 @@ class ApiClient extends BaseApiClient {
       const error = await response.json().catch(() => null);
       throw new ApiClientError(
         error?.error?.message || 'Failed to delete file',
-        error?.error?.code || ErrorCode.PROCESSING_FAILED,
+        error?.error?.code || ErrorCode.INTERNAL_ERROR,
         response.status
       );
     }

@@ -23,6 +23,12 @@ const publicRoutes = createRouteMatcher([
 // Define API routes that should always be protected
 const protectedApiRoutes = createRouteMatcher(['/api/users(.*)']);
 
+// Check if Clerk is properly configured and warn if not
+if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || !process.env.CLERK_SECRET_KEY) {
+  console.warn('⚠️ Clerk is not properly configured. Authentication may not work as expected.');
+  console.warn('  Ensure NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY are set in your .env file.');
+}
+
 // Export the middleware function with debug mode in development
 export default clerkMiddleware(
   async (auth, req) => {
@@ -31,7 +37,17 @@ export default clerkMiddleware(
     
     // If it's not a public route and it's a protected API route, enforce authentication
     if (!isPublic && protectedApiRoutes(req)) {
-      await auth.protect();
+      try {
+        await auth.protect();
+      } catch (error) {
+        // In development with placeholder keys, allow access despite auth errors
+        if (process.env.NODE_ENV === 'development' && 
+            process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.includes('placeholder')) {
+          console.warn('⚠️ Authentication bypass in development mode with placeholder keys');
+          return NextResponse.next();
+        }
+        throw error;
+      }
     }
 
     return NextResponse.next();

@@ -182,11 +182,24 @@ export async function createThread() {
 
 export async function addMessage(threadId: string, content: string, fileIds?: string[]) {
   try {
-    return await openai.beta.threads.messages.create(threadId, {
+    const messageData: {
+      role: 'user';
+      content: string;
+      attachments?: Array<{type: 'file_attachment', file_id: string}>;
+    } = {
       role: 'user',
       content,
-      file_ids: fileIds,
-    });
+    };
+    
+    // Use the attachments field instead of file_ids for OpenAI API v4
+    if (fileIds && fileIds.length > 0) {
+      messageData.attachments = fileIds.map(id => ({
+        type: 'file_attachment',
+        file_id: id
+      }));
+    }
+    
+    return await openai.beta.threads.messages.create(threadId, messageData);
   } catch (error) {
     console.error('Error adding message:', error);
     throw new OpenAIError('Failed to add message', 500);
