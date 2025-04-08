@@ -128,6 +128,45 @@ pnpm dev
 
 6. **Open [http://localhost:3000](http://localhost:3000)** with your browser to see the result.
 
+## Development Commands
+
+Here are some useful commands for development:
+
+```bash
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm run start
+
+# Run linting
+npm run lint
+
+# Run tests
+npm run test
+
+# Run type checking
+npm run typecheck
+
+# Generate Prisma client
+npx prisma generate
+
+# Create a migration from schema changes
+npx prisma migrate dev
+
+# Apply migrations to database
+npx prisma migrate deploy
+
+# Reset the database
+npx prisma migrate reset
+
+# Open Prisma Studio (database UI)
+npx prisma studio
+```
+
 ## Configuration
 
 ### Authentication
