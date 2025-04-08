@@ -17,8 +17,8 @@ A modern web application template built with Next.js, featuring authentication, 
 
 ## Tech Stack
 ### **Frontend**
-- **Framework**: Next.js + React
-- **Styling**: Tailwind CSS with customizable UI components (Shadcn UI)
+- **Framework**: Next.js 14+ + React 18
+- **Styling**: Tailwind CSS 3 with customizable UI components (Shadcn UI)
 
 ### **Authentication**
 - **Service**: Clerk (easily configurable)
@@ -28,11 +28,11 @@ A modern web application template built with Next.js, featuring authentication, 
   - Enables serverless functions for backend operations
 
 ### **Database**
-- **ORM**: Prisma
+- **ORM**: Prisma 5+
   - Compatible with various database providers (PostgreSQL, MySQL, SQLite)
 
 ### **AI Integration**
-- **Service**: OpenAI API with built-in utility functions and types
+- **Service**: OpenAI API v4 with built-in utility functions and types
 
 ### **Deployment**
 - **Recommended**: Vercel
