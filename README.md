@@ -65,6 +65,22 @@ platform-template/
 └── tests/                # Application tests
 ```
 
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js**: v18.0.0 or higher ([download](https://nodejs.org/))
+- **npm**, **yarn**, or **pnpm**: Latest stable version
+- **Git**: For cloning the repository and version control
+- **Database**: For development, SQLite is used by default via Prisma. For production:
+  - PostgreSQL (recommended)
+  - MySQL
+  - MongoDB (requires schema adaptation)
+
+Optional dependencies:
+- **Clerk account**: For authentication ([sign up](https://clerk.com/))
+- **OpenAI API key**: For AI integration ([sign up](https://openai.com/))
+
 ## Getting Started
 
 1. **Clone the repository**:
