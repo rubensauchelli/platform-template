@@ -217,6 +217,45 @@ This template implements several security best practices:
 - Consider adding a bug bounty program for your production application
 - Implement logging and monitoring for security-related events
 
+## Troubleshooting
+
+Here are solutions to some common issues you might encounter:
+
+### Build Errors
+
+- **Error: Failed to collect page data for /api/webhooks/clerk**
+  - **Solution**: Missing Clerk environment variables. Ensure you've added the required Clerk keys to your `.env.local` file.
+
+- **Error: You cannot use both next.config.js and app/ directory at the same time**
+  - **Solution**: Update your Next.js configuration to be compatible with the app directory.
+
+- **Error with OpenAI integration**
+  - **Solution**: Check that your OpenAI API key is valid and has sufficient permissions.
+
+### Runtime Errors
+
+- **Authentication not working**
+  - **Solution**: Verify your Clerk configuration and check that the webhook endpoints are correctly set up.
+
+- **Database connection errors**
+  - **Solution**: Confirm your database URL is correct and that the database server is running.
+  - **Solution**: Run `npx prisma generate` to ensure your Prisma client is up to date.
+
+- **API routes returning 500 errors**
+  - **Solution**: Check your server logs for detailed error messages.
+  - **Solution**: Verify that your environment variables are correctly set.
+
+### Development Workflow
+
+- **Hot reload not working**
+  - **Solution**: Restart the development server with `npm run dev`.
+  - **Solution**: Check for syntax errors in your code that might be preventing compilation.
+
+- **Prisma changes not reflecting in the database**
+  - **Solution**: Run `npx prisma db push` or `npx prisma migrate dev` to apply your schema changes.
+
+For more complex issues, refer to the [documentation](documentation/) or open an issue on the repository.
+
 ## Support and Contributing
 
 For issues, feature requests, or contributions, please:
